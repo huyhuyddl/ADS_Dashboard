@@ -10,6 +10,52 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <style>
+      /* ── HISTORY TIMELINE ── */
+      .timeline-item {
+        display: flex;
+        gap: 14px;
+        padding: 12px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        transition: background 0.15s;
+      }
+      .timeline-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .timeline-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .timeline-content {
+        flex: 1;
+      }
+      .timeline-action {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 3px;
+      }
+      .timeline-detail {
+        font-size: 12px;
+        color: var(--text2);
+        margin-bottom: 3px;
+      }
+      .timeline-time {
+        font-size: 11px;
+        color: var(--text3);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .timeline-ip {
+        font-size: 10px;
+        color: var(--text3);
+        margin-left: 8px;
+      }
+
       *,
       *::before,
       *::after {
@@ -17,7 +63,6 @@
         margin: 0;
         padding: 0;
       }
-
       :root {
         --bg: #060d1a;
         --bg2: #0a1628;
@@ -41,7 +86,6 @@
         --sb-w: 230px;
         --glow: rgba(33, 150, 243, 0.12);
       }
-
       html {
         scroll-behavior: smooth;
       }
@@ -53,7 +97,7 @@
         overflow-x: hidden;
       }
 
-      /* ── SIDEBAR ──────────────────────────────────────────── */
+      /* ── SIDEBAR ── */
       .sidebar {
         position: fixed;
         left: 0;
@@ -67,7 +111,6 @@
         padding: 20px 14px;
         z-index: 200;
       }
-
       .logo {
         display: flex;
         align-items: center;
@@ -97,8 +140,6 @@
         color: var(--accent);
         font-style: normal;
       }
-
-      /* PLATFORM SECTION */
       .sb-section-label {
         font-size: 10px;
         font-weight: 600;
@@ -108,7 +149,6 @@
         padding: 0 10px;
         margin: 16px 0 6px;
       }
-
       .nav-item {
         display: flex;
         align-items: center;
@@ -145,8 +185,6 @@
         border-radius: 0 2px 2px 0;
         background: var(--accent);
       }
-
-      /* Platform icon pills */
       .p-icon {
         width: 22px;
         height: 22px;
@@ -172,8 +210,6 @@
       .p-all {
         background: linear-gradient(135deg, var(--accent), var(--purple));
       }
-
-      /* Connection dot on platform nav */
       .conn-dot {
         width: 6px;
         height: 6px;
@@ -191,7 +227,6 @@
       .conn-dot.warn {
         background: var(--warn);
       }
-
       .nav-icon {
         width: 17px;
         height: 17px;
@@ -201,12 +236,9 @@
       .nav-item.active .nav-icon {
         opacity: 1;
       }
-
       .sidebar-spacer {
         flex: 1;
       }
-
-      /* User card */
       .user-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -259,14 +291,12 @@
         color: var(--danger);
       }
 
-      /* ── MAIN ──────────────────────────────────────────────── */
+      /* ── MAIN ── */
       .main {
         margin-left: var(--sb-w);
         padding: 24px 26px;
         min-height: 100vh;
       }
-
-      /* ── TOPBAR ────────────────────────────────────────────── */
       .topbar {
         display: flex;
         justify-content: space-between;
@@ -283,13 +313,11 @@
         color: var(--text3);
         margin-top: 3px;
       }
-
       .topbar-right {
         display: flex;
         align-items: center;
         gap: 10px;
       }
-
       .date-btns {
         display: flex;
         gap: 3px;
@@ -311,7 +339,6 @@
         color: #fff;
         border-color: var(--accent);
       }
-
       .live-badge {
         display: flex;
         align-items: center;
@@ -340,7 +367,7 @@
         }
       }
 
-      /* ── VIEWS ─────────────────────────────────────────────── */
+      /* ── VIEWS ── */
       .view {
         display: none;
       }
@@ -348,7 +375,7 @@
         display: block;
       }
 
-      /* ── DEMO BANNER ───────────────────────────────────────── */
+      /* ── DEMO BANNER ── */
       .demo-banner {
         display: none;
         align-items: center;
@@ -365,9 +392,10 @@
       }
       .demo-banner-text {
         color: #ffd54f;
+        flex: 1;
       }
+      /* Nút kết nối ngay — chỉ hiện khi chưa kết nối */
       .demo-btn-connect {
-        margin-left: auto;
         background: rgba(255, 193, 7, 0.12);
         border: 1px solid rgba(255, 193, 7, 0.25);
         color: var(--warn);
@@ -379,7 +407,7 @@
         white-space: nowrap;
       }
 
-      /* ── ALERT BAR ─────────────────────────────────────────── */
+      /* ── ALERT BAR ── */
       .alert-bar {
         display: none;
         align-items: center;
@@ -409,7 +437,7 @@
         flex: 1;
       }
 
-      /* ── METRICS GRID ──────────────────────────────────────── */
+      /* ── METRICS ── */
       .metrics-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -455,7 +483,6 @@
       .m-purple::after {
         background: var(--purple);
       }
-
       .m-label {
         font-size: 10.5px;
         color: var(--text2);
@@ -478,7 +505,7 @@
         color: var(--ok);
       }
 
-      /* ── CHART GRID ────────────────────────────────────────── */
+      /* ── CHARTS ── */
       .grid-2 {
         display: grid;
         grid-template-columns: 1fr 300px;
@@ -510,7 +537,7 @@
         color: var(--text3);
       }
 
-      /* ── PLATFORM BADGE in single-platform view ────────────── */
+      /* ── PLATFORM HEADER ── */
       .platform-header {
         display: flex;
         align-items: center;
@@ -567,7 +594,7 @@
         color: var(--warn);
       }
 
-      /* ── CHANNEL TABLE ─────────────────────────────────────── */
+      /* ── TABLE ── */
       .ch-table {
         width: 100%;
         border-collapse: collapse;
@@ -627,7 +654,6 @@
         background: rgba(255, 255, 255, 0.06);
         color: var(--text3);
       }
-
       .prog {
         height: 3px;
         background: rgba(255, 255, 255, 0.06);
@@ -639,7 +665,7 @@
         border-radius: 2px;
       }
 
-      /* ── BUDGET ────────────────────────────────────────────── */
+      /* ── BUDGET ── */
       .budget-list {
         display: flex;
         flex-direction: column;
@@ -679,7 +705,7 @@
         border-radius: 3px;
       }
 
-      /* ── ROI BARS ──────────────────────────────────────────── */
+      /* ── ROI BARS ── */
       .roi-list {
         display: flex;
         flex-direction: column;
@@ -720,7 +746,7 @@
         color: var(--text);
       }
 
-      /* ── SPINNER / LOADING ─────────────────────────────────── */
+      /* ── SPINNER ── */
       .spinner {
         width: 18px;
         height: 18px;
@@ -744,7 +770,7 @@
         font-size: 13px;
       }
 
-      /* ── EMPTY STATE ───────────────────────────────────────── */
+      /* ── EMPTY STATE ── */
       .empty-state {
         text-align: center;
         padding: 48px 24px;
@@ -762,7 +788,7 @@
         margin-bottom: 6px;
       }
 
-      /* ── SETTINGS VIEW ─────────────────────────────────────── */
+      /* ── SETTINGS VIEW ── */
       .settings-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -787,7 +813,6 @@
       .conn-card.needs-reauth {
         border-color: rgba(255, 193, 7, 0.25);
       }
-
       .conn-card-header {
         display: flex;
         align-items: center;
@@ -814,7 +839,6 @@
         font-size: 12px;
         color: var(--text2);
       }
-
       .conn-status-badge {
         margin-left: auto;
         display: flex;
@@ -840,7 +864,6 @@
         border: 1px solid rgba(255, 193, 7, 0.2);
         color: var(--warn);
       }
-
       .conn-detail {
         font-size: 12px;
         color: var(--text2);
@@ -850,7 +873,6 @@
       .conn-detail strong {
         color: var(--text);
       }
-
       .conn-actions {
         display: flex;
         gap: 8px;
@@ -893,8 +915,6 @@
         cursor: not-allowed;
         transform: none;
       }
-
-      /* Progress bar for token expiry */
       .token-bar {
         margin-top: 10px;
       }
@@ -914,8 +934,6 @@
         height: 100%;
         border-radius: 2px;
       }
-
-      /* Settings info card */
       .settings-info {
         background: rgba(33, 150, 243, 0.05);
         border: 1px solid rgba(33, 150, 243, 0.15);
@@ -936,21 +954,145 @@
         flex-direction: column;
         gap: 5px;
       }
-      .settings-info li {
+
+      /* ── PASSWORD CHANGE CARD ── */
+      .pw-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: border-color 0.2s;
+      }
+      .pw-card:hover {
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .pw-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .pw-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(
+          135deg,
+          rgba(33, 150, 243, 0.3),
+          rgba(156, 108, 255, 0.3)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .pw-card-title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .pw-card-sub {
         font-size: 12px;
         color: var(--text2);
-        display: flex;
-        align-items: flex-start;
-        gap: 7px;
+        margin-top: 2px;
       }
-      .settings-info li::before {
-        content: "→";
-        color: var(--accent);
-        flex-shrink: 0;
-        margin-top: 1px;
+      .pw-form {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        align-items: end;
+      }
+      .pw-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .pw-label {
+        font-size: 11px;
+        color: var(--text2);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      .pw-input {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-size: 13px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .pw-input:focus {
+        border-color: var(--accent);
+      }
+      .pw-input::placeholder {
+        color: var(--text3);
+      }
+      .pw-btn {
+        padding: 9px 20px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.18s;
+        border: none;
+        background: var(--accent);
+        color: #fff;
+        white-space: nowrap;
+      }
+      .pw-btn:hover {
+        background: #1976d2;
+        transform: translateY(-1px);
+      }
+      .pw-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .pw-msg {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 7px;
+        font-size: 12px;
+        display: none;
+      }
+      .pw-msg.ok {
+        display: block;
+        background: rgba(0, 229, 160, 0.08);
+        border: 1px solid rgba(0, 229, 160, 0.2);
+        color: var(--ok);
+      }
+      .pw-msg.err {
+        display: block;
+        background: rgba(255, 61, 87, 0.08);
+        border: 1px solid rgba(255, 61, 87, 0.2);
+        color: var(--danger);
       }
 
-      /* ── MODAL (no-ads) ────────────────────────────────────── */
+      /* ── SETTINGS SECTION DIVIDER ── */
+      .settings-section-title {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: var(--text3);
+        text-transform: uppercase;
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .settings-section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── MODAL ── */
       .overlay {
         position: fixed;
         inset: 0;
@@ -1063,7 +1205,7 @@
         margin-top: 12px;
       }
 
-      /* Comparison view (ALL tab) */
+      /* ── COMPARE CARDS ── */
       .compare-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -1137,23 +1279,20 @@
         font-weight: 500;
       }
 
-      /* Utility */
       .mono {
         font-family: "JetBrains Mono", monospace;
       }
     </style>
   </head>
   <body>
-    <!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+    <!-- ══ SIDEBAR ══ -->
     <div class="sidebar">
       <div class="logo">
         <div class="logo-icon">A</div>
         <div class="logo-text">Ads<em>Analytics</em></div>
       </div>
 
-      <!-- Platform tabs -->
       <div class="sb-section-label">Nền tảng</div>
-
       <button class="nav-item" id="nav-all" onclick="switchView('all')">
         <div class="p-icon p-all">∑</div>
         <span>Tất cả</span>
@@ -1179,7 +1318,7 @@
         <div class="conn-dot off" id="dot-tiktok"></div>
       </button>
 
-      <!-- Other -->
+      <!-- ── KHÁC: Kết nối & Cài đặt ── -->
       <div class="sb-section-label" style="margin-top: 20px">Khác</div>
       <button
         class="nav-item"
@@ -1198,12 +1337,26 @@
             stroke-width="2"
           />
         </svg>
-        <span>Kết nối</span>
-        <div class="conn-dot off" id="dot-settings" style="display: none"></div>
+        <!-- Đổi tên thành "Kết nối & Cài đặt" -->
+        <span>Kết nối &amp; Cài đặt</span>
+      </button>
+
+      <button class="nav-item" id="nav-history" onclick="switchView('history')">
+        <svg
+          class="nav-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>Lịch sử</span>
       </button>
 
       <div class="sidebar-spacer"></div>
-
       <div class="user-card">
         <div class="avatar" id="avatarBox">?</div>
         <div>
@@ -1214,9 +1367,8 @@
       <button class="logout-btn" onclick="logout()">Đăng xuất</button>
     </div>
 
-    <!-- ══ MAIN ══════════════════════════════════════════════════════ -->
+    <!-- ══ MAIN ══ -->
     <div class="main">
-      <!-- TOPBAR -->
       <div class="topbar">
         <div>
           <div class="page-title" id="pageTitle">Dashboard</div>
@@ -1226,7 +1378,7 @@
             <span id="clock"></span>
           </div>
         </div>
-        <div class="topbar-right">
+        <div class="topbar-right" style="position: relative">
           <div class="date-btns" id="dateBtns">
             <button class="date-btn active" onclick="setDays(7, this)">
               7 ngày
@@ -1238,6 +1390,144 @@
               90 ngày
             </button>
           </div>
+
+          <div
+            id="platformFilter"
+            style="display: flex; gap: 6px; align-items: center"
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                color: var(--text2);
+                background: var(--card);
+                border: 1px solid var(--border);
+                padding: 5px 10px;
+                border-radius: 7px;
+                user-select: none;
+              "
+            >
+              <input
+                type="checkbox"
+                id="chk-facebook"
+                checked
+                onchange="applyPlatformFilter()"
+                style="accent-color: var(--fb)"
+              />
+              <span style="color: #1877f2; font-weight: 600">f</span> Facebook
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                color: var(--text2);
+                background: var(--card);
+                border: 1px solid var(--border);
+                padding: 5px 10px;
+                border-radius: 7px;
+                user-select: none;
+              "
+            >
+              <input
+                type="checkbox"
+                id="chk-google"
+                checked
+                onchange="applyPlatformFilter()"
+                style="accent-color: var(--gg)"
+              />
+              <span style="color: #ea4335; font-weight: 600">G</span> Google
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                color: var(--text2);
+                background: var(--card);
+                border: 1px solid var(--border);
+                padding: 5px 10px;
+                border-radius: 7px;
+                user-select: none;
+              "
+            >
+              <input
+                type="checkbox"
+                id="chk-tiktok"
+                checked
+                onchange="applyPlatformFilter()"
+                style="accent-color: var(--tt)"
+              />
+              <span style="color: #69c9d0; font-weight: 600">T</span> TikTok
+            </label>
+          </div>
+
+          <div
+            style="position: relative; cursor: pointer"
+            onclick="toggleNotifications()"
+            id="bellWrap"
+          >
+            <div style="font-size: 20px; line-height: 1" id="bellIcon">🔔</div>
+            <div
+              id="bellBadge"
+              style="
+                display: none;
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                background: var(--danger);
+                color: #fff;
+                border-radius: 50%;
+                width: 16px;
+                height: 16px;
+                font-size: 9px;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+              "
+            ></div>
+          </div>
+          <!-- Notification dropdown -->
+          <div
+            id="notifDropdown"
+            style="
+              display: none;
+              position: absolute;
+              top: 60px;
+              right: 24px;
+              width: 320px;
+              background: var(--bg2);
+              border: 1px solid var(--border);
+              border-radius: 12px;
+              z-index: 999;
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+              overflow: hidden;
+            "
+          >
+            <div
+              style="
+                padding: 12px 16px;
+                border-bottom: 1px solid var(--border);
+                font-size: 13px;
+                font-weight: 600;
+              "
+            >
+              🔔 Cảnh báo ngân sách
+            </div>
+            <div
+              id="notifList"
+              style="max-height: 300px; overflow-y: auto"
+            ></div>
+          </div>
+
           <div class="live-badge">
             <div class="dot"></div>
             LIVE
@@ -1245,14 +1535,19 @@
         </div>
       </div>
 
-      <!-- DEMO BANNER -->
+      <!-- DEMO BANNER — nội dung thay đổi theo trạng thái kết nối -->
       <div class="demo-banner" id="demoBanner">
         <span>🎭</span>
-        <div class="demo-banner-text">
+        <div class="demo-banner-text" id="demoBannerText">
           Đang xem <strong>dữ liệu minh họa</strong> — kết nối tài khoản ads để
           thấy số liệu thực
         </div>
-        <button class="demo-btn-connect" onclick="switchView('settings')">
+        <!-- Nút này chỉ hiện khi CHƯA kết nối, ẩn khi đã kết nối mà không có ads -->
+        <button
+          class="demo-btn-connect"
+          id="demoBannerBtn"
+          onclick="switchView('settings')"
+        >
           Kết nối ngay →
         </button>
       </div>
@@ -1263,8 +1558,23 @@
         <div class="alert-text" id="alertText"></div>
       </div>
 
-      <!-- ══ VIEW: ALL ════════════════════════════════════════════════ -->
+      <!-- ══ VIEW: ALL ══ -->
       <div class="view active" id="view-all">
+        <div
+          id="compareNotice"
+          style="
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(33, 150, 243, 0.06);
+            border: 1px solid rgba(33, 150, 243, 0.15);
+            border-radius: 10px;
+            padding: 9px 14px;
+            margin-bottom: 14px;
+            font-size: 13px;
+          "
+        ></div>
+
         <div class="metrics-grid" id="metricsAll">
           <div class="metric m-blue">
             <div class="loading-center"><div class="spinner"></div></div>
@@ -1274,12 +1584,7 @@
           <div class="metric m-yellow"></div>
           <div class="metric m-red"></div>
         </div>
-
-        <!-- Compare cards -->
-        <div class="compare-grid" id="compareCards">
-          <!-- filled by JS -->
-        </div>
-
+        <div class="compare-grid" id="compareCards"></div>
         <div class="grid-2">
           <div class="chart-card">
             <div class="card-title">
@@ -1304,7 +1609,6 @@
             </table>
           </div>
         </div>
-
         <div class="grid-2b">
           <div class="chart-card">
             <div class="card-title">ROI theo kênh</div>
@@ -1321,7 +1625,7 @@
         </div>
       </div>
 
-      <!-- ══ VIEW: FACEBOOK ═══════════════════════════════════════════ -->
+      <!-- ══ VIEW: FACEBOOK ══ -->
       <div class="view" id="view-facebook">
         <div class="platform-header">
           <div class="p-icon-lg" style="background: var(--fb)">f</div>
@@ -1375,7 +1679,7 @@
         </div>
       </div>
 
-      <!-- ══ VIEW: GOOGLE ══════════════════════════════════════════════ -->
+      <!-- ══ VIEW: GOOGLE ══ -->
       <div class="view" id="view-google">
         <div class="platform-header">
           <div class="p-icon-lg" style="background: var(--gg)">G</div>
@@ -1429,7 +1733,7 @@
         </div>
       </div>
 
-      <!-- ══ VIEW: TIKTOK ══════════════════════════════════════════════ -->
+      <!-- ══ VIEW: TIKTOK ══ -->
       <div class="view" id="view-tiktok">
         <div class="platform-header">
           <div class="p-icon-lg" style="background: var(--tt); color: #111">
@@ -1485,10 +1789,176 @@
         </div>
       </div>
 
-      <!-- ══ VIEW: SETTINGS ═══════════════════════════════════════════ -->
+      <!-- ══ VIEW: HISTORY ══ -->
+      <div class="view" id="view-history">
+        <!-- Stats nhanh -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+          "
+          id="historyStats"
+        >
+          <div class="metric m-blue">
+            <div class="loading-center"><div class="spinner"></div></div>
+          </div>
+          <div class="metric m-green"></div>
+          <div class="metric m-orange"></div>
+          <div class="metric m-yellow"></div>
+        </div>
+
+        <!-- Filter + Search -->
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            align-items: center;
+          "
+        >
+          <input
+            type="text"
+            id="historySearch"
+            placeholder="🔍 Tìm kiếm..."
+            oninput="filterHistory()"
+            style="
+              flex: 1;
+              background: var(--card);
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              padding: 8px 12px;
+              color: var(--text);
+              font-size: 13px;
+              font-family: &quot;DM Sans&quot;, sans-serif;
+              outline: none;
+            "
+          />
+          <div style="display: flex; gap: 4px" id="historyFilters">
+            <button
+              class="date-btn active"
+              onclick="setHistoryFilter('all', this)"
+            >
+              Tất cả
+            </button>
+            <button class="date-btn" onclick="setHistoryFilter('LOGIN', this)">
+              Đăng nhập
+            </button>
+            <button
+              class="date-btn"
+              onclick="setHistoryFilter('CONNECT', this)"
+            >
+              Kết nối
+            </button>
+            <button class="date-btn" onclick="setHistoryFilter('BUDGET', this)">
+              Ngân sách
+            </button>
+            <button class="date-btn" onclick="setHistoryFilter('OTHER', this)">
+              Khác
+            </button>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="chart-card" style="padding: 0; overflow: hidden">
+          <div
+            style="
+              padding: 14px 18px;
+              border-bottom: 1px solid var(--border);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div style="font-size: 13px; font-weight: 500">
+              📋 Nhật ký hoạt động
+            </div>
+            <div style="font-size: 11px; color: var(--text3)" id="historyCount">
+              —
+            </div>
+          </div>
+          <div id="historyTimeline" style="max-height: 600px; overflow-y: auto">
+            <div class="loading-center"><div class="spinner"></div></div>
+          </div>
+          <!-- Phân trang -->
+          <div
+            id="historyPagination"
+            style="
+              padding: 12px 18px;
+              border-top: 1px solid var(--border);
+              display: flex;
+              justify-content: center;
+              gap: 6px;
+            "
+          ></div>
+        </div>
+      </div>
+
+      <!-- ══ VIEW: SETTINGS ══ -->
       <div class="view" id="view-settings">
+        <!-- SECTION 1: ĐỔI MẬT KHẨU -->
+        <div class="settings-section-title">🔐 Tài khoản ứng dụng</div>
+
+        <div class="pw-card">
+          <div class="pw-card-header">
+            <div class="pw-icon">🔑</div>
+            <div>
+              <div class="pw-card-title">Đổi mật khẩu</div>
+              <div class="pw-card-sub">
+                Cập nhật mật khẩu đăng nhập vào AdsAnalytics
+              </div>
+            </div>
+          </div>
+          <div class="pw-form">
+            <div class="pw-field">
+              <label class="pw-label">Mật khẩu hiện tại</label>
+              <input
+                type="password"
+                class="pw-input"
+                id="pwCurrent"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+            </div>
+            <div class="pw-field">
+              <label class="pw-label">Mật khẩu mới</label>
+              <input
+                type="password"
+                class="pw-input"
+                id="pwNew"
+                placeholder="Ít nhất 6 ký tự"
+                autocomplete="new-password"
+              />
+            </div>
+            <div class="pw-field">
+              <label class="pw-label">Xác nhận mật khẩu mới</label>
+              <input
+                type="password"
+                class="pw-input"
+                id="pwConfirm"
+                placeholder="Nhập lại mật khẩu mới"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+          <!-- Nút riêng, căn phải -->
+          <div
+            style="margin-top: 14px; display: flex; justify-content: flex-end"
+          >
+            <button class="pw-btn" id="pwBtn" onclick="changePassword()">
+              💾 Lưu mật khẩu mới
+            </button>
+          </div>
+          <div class="pw-msg" id="pwMsg"></div>
+        </div>
+
+        <!-- SECTION 2: KẾT NỐI NỀN TẢNG ADS -->
+        <div class="settings-section-title" style="margin-top: 8px">
+          🔗 Kết nối nền tảng Ads
+        </div>
+
         <div class="settings-grid" id="settingsGrid">
-          <!-- filled by renderSettings() -->
           <div class="conn-card">
             <div class="loading-center"><div class="spinner"></div></div>
           </div>
@@ -1499,6 +1969,25 @@
             <div class="loading-center"><div class="spinner"></div></div>
           </div>
         </div>
+        <!-- SECTION: NGÂN SÁCH -->
+        <div class="settings-section-title" style="margin-top: 20px">
+          💰 Thiết lập ngân sách
+        </div>
+        <div
+          id="budgetFormsGrid"
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+          "
+        >
+          <div style="grid-column: 1/-1">
+            <div class="loading-center"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: THÔNG TIN -->
         <div class="settings-info">
           <div class="settings-info-title">ℹ️ Thông tin kết nối</div>
           <ul>
@@ -1510,10 +1999,7 @@
               Token Facebook có thời hạn ~60 ngày và sẽ được tự động làm mới nếu
               còn hạn.
             </li>
-            <li>
-              Google Ads và TikTok Ads đang trong giai đoạn tích hợp — cần cấu
-              hình thêm credentials trong .env.
-            </li>
+            <li>Google Ads và TikTok Ads sẽ tự động refresh token</li>
             <li>
               Ngắt kết nối sẽ xoá token khỏi hệ thống nhưng không ảnh hưởng đến
               tài khoản Ads của bạn.
@@ -1524,15 +2010,14 @@
     </div>
     <!-- /main -->
 
-    <!-- ══ NO-ADS MODAL ══════════════════════════════════════════════ -->
+    <!-- ══ NO-ADS MODAL ══ -->
     <div class="overlay" id="noAdsOverlay" style="display: none">
       <div class="modal">
         <div class="modal-icon">📊</div>
         <div class="modal-title">Chưa có dữ liệu quảng cáo</div>
         <div class="modal-sub">
           Tài khoản <strong>{{ username }}</strong> chưa kết nối với nền tảng
-          ads nào.<br />
-          Bạn muốn làm gì tiếp theo?
+          ads nào.<br />Bạn muốn làm gì tiếp theo?
         </div>
         <div class="modal-feats">
           <div class="modal-feat">
@@ -1569,15 +2054,16 @@
     </div>
 
     <script>
-      // ── GLOBALS ─────────────────────────────────────────────────────
+      // ── GLOBALS ──
       const USERNAME = "{{ username }}";
       const ROLE = "{{ role }}";
-
       let currentView = "all";
       let currentDays = 7;
       let forceMock = false;
-      let connections = {}; // loaded once
-      let charts = {}; // Chart.js instances
+      let selectedPlatforms = ["facebook", "google", "tiktok"];
+      let lastAllData = null;
+      let connections = {};
+      let charts = {};
 
       const PLATFORM_META = {
         facebook: {
@@ -1600,7 +2086,7 @@
         },
       };
 
-      // ── INIT ─────────────────────────────────────────────────────────
+      // ── INIT ──
       document.getElementById("avatarBox").textContent =
         USERNAME.charAt(0).toUpperCase();
       document.getElementById("usernameBox").textContent = USERNAME;
@@ -1613,7 +2099,6 @@
       document.getElementById("clock").textContent =
         new Date().toLocaleTimeString("vi-VN");
 
-      // Check URL params for OAuth callback messages
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("connected")) {
         const p = urlParams.get("connected");
@@ -1628,7 +2113,7 @@
         history.replaceState({}, "", "/dashboard");
       }
 
-      // ── TOAST ────────────────────────────────────────────────────────
+      // ── TOAST ──
       function showToast(msg, type = "ok") {
         const colors = {
           ok: "var(--ok)",
@@ -1636,19 +2121,13 @@
           warn: "var(--warn)",
         };
         const t = document.createElement("div");
-        t.style.cssText = `
-    position:fixed;bottom:24px;right:24px;z-index:9999;
-    background:var(--bg2);border:1px solid ${colors[type]};
-    border-radius:10px;padding:11px 18px;font-size:13px;
-    color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);
-    animation:modalUp .3s ease;max-width:340px;line-height:1.5;
-  `;
+        t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--bg2);border:1px solid ${colors[type]};border-radius:10px;padding:11px 18px;font-size:13px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);animation:modalUp .3s ease;max-width:340px;line-height:1.5;`;
         t.textContent = msg;
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 4000);
       }
 
-      // ── FORMATTERS ───────────────────────────────────────────────────
+      // ── FORMATTERS ──
       function fmt(n) {
         return new Intl.NumberFormat("vi-VN").format(Math.round(n));
       }
@@ -1661,9 +2140,8 @@
         return String(Math.round(n));
       }
 
-      // ── VIEW SWITCHER ────────────────────────────────────────────────
+      // ── VIEW SWITCHER ──
       function switchView(name) {
-        // Hide all views
         document
           .querySelectorAll(".view")
           .forEach((v) => v.classList.remove("active"));
@@ -1672,32 +2150,32 @@
           .forEach((n) => n.classList.remove("active"));
         document.getElementById("view-" + name).classList.add("active");
         document.getElementById("nav-" + name).classList.add("active");
-
-        // Update topbar
         const titles = {
           all: "Tổng hợp tất cả kênh",
           facebook: "Facebook Ads",
           google: "Google Ads",
           tiktok: "TikTok Ads",
-          settings: "Kết nối nền tảng",
+          settings: "Kết nối & Cài đặt",
+          history: "Lịch sử hoạt động",
         };
         document.getElementById("pageTitle").textContent =
           titles[name] || "Dashboard";
-
-        // Show/hide date picker (not needed in settings)
         document.getElementById("dateBtns").style.display =
-          name === "settings" ? "none" : "flex";
-
+          name === "settings" || name === "history" ? "none" : "flex";
+        document.getElementById("demoBanner").style.display =
+          name === "settings" || name === "history" ? "none" : "";
+        document.getElementById("alertBar").style.display =
+          name === "settings" || name === "history" ? "none" : "";
+        document.getElementById("platformFilter").style.display =
+          name === "all" ? "flex" : "none";
         currentView = name;
-
-        if (name === "settings") {
-          loadSettings();
-        } else {
-          loadView(name);
-        }
+        document.getElementById("platformFilter").style.display =
+          name === "all" ? "flex" : "none";
+        if (name === "settings") loadSettings();
+        else if (name === "history") loadHistory();
+        else loadView(name);
       }
 
-      // ── DAYS SETTER ──────────────────────────────────────────────────
       function setDays(d, btn) {
         currentDays = d;
         document
@@ -1707,7 +2185,7 @@
         if (currentView !== "settings") loadView(currentView);
       }
 
-      // ── LOAD CONNECTIONS STATUS ──────────────────────────────────────
+      // ── CONNECTIONS STATUS ──
       async function loadConnectionStatus() {
         try {
           const res = await fetch("/api/connections/status");
@@ -1715,36 +2193,29 @@
         } catch (e) {
           connections = {};
         }
-        // Update sidebar dots
         for (const p of ["facebook", "google", "tiktok"]) {
           const dot = document.getElementById("dot-" + p);
           if (!dot) continue;
           const c = connections[p];
-          if (c?.connected && !c?.needs_reauth) {
-            dot.className = "conn-dot on";
-          } else if (c?.needs_reauth) {
-            dot.className = "conn-dot warn";
-          } else {
-            dot.className = "conn-dot off";
-          }
+          if (c?.connected && !c?.needs_reauth) dot.className = "conn-dot on";
+          else if (c?.needs_reauth) dot.className = "conn-dot warn";
+          else dot.className = "conn-dot off";
         }
-        // Update ALL dot
         const anyConn = Object.values(connections).some((c) => c.connected);
         document.getElementById("dot-all").className = anyConn
           ? "conn-dot on"
           : "conn-dot off";
       }
 
-      // ── MAIN LOAD ────────────────────────────────────────────────────
+      // ── LOAD VIEW ──
       async function loadView(platform) {
         const isAll = platform === "all";
         const url = `/api/dashboard-data?days=${currentDays}&platform=${platform}${forceMock ? "&force_mock=1" : ""}`;
-
         try {
           const res = await fetch(url);
           const d = await res.json();
 
-          // Show modal if no ads data and user hasn't chosen fake yet
+          // Modal: chỉ show khi chưa kết nối bao giờ
           if (
             d.no_ads_data &&
             !forceMock &&
@@ -1754,24 +2225,46 @@
             return;
           }
 
-          // Demo banner
+          // ── DEMO BANNER LOGIC ──
+          // Xác định xem platform có kết nối FB không
+          const fbConnected =
+            connections.facebook?.connected &&
+            !connections.facebook?.needs_reauth;
           const anyMock = isAll
-            ? Object.values(d.channel_stats).some((c) => c.is_mock)
-            : d.channel_stats[platform]?.is_mock;
-          document
-            .getElementById("demoBanner")
-            .classList.toggle("show", Boolean(anyMock));
+            ? Object.values(d.channel_stats || {}).some((c) => c.is_mock)
+            : d.channel_stats?.[platform]?.is_mock;
 
-          // Alert bar
+          const banner = document.getElementById("demoBanner");
+          const bannerTxt = document.getElementById("demoBannerText");
+          const bannerBtn = document.getElementById("demoBannerBtn");
+
+          if (anyMock) {
+            banner.classList.add("show");
+            // Kiểm tra: FB đã kết nối nhưng data vẫn là mock (không có ads đang chạy)
+            const platformToCheck = isAll ? "facebook" : platform;
+            const isConnectedButNoAds =
+              connections[platformToCheck]?.connected &&
+              d.channel_stats?.[platformToCheck]?.is_mock;
+
+            if (isConnectedButNoAds) {
+              // FB đã kết nối nhưng không có ads → không hiện nút kết nối
+              const pName = PLATFORM_META[platformToCheck]?.name || "Tài khoản";
+              bannerTxt.innerHTML = `<strong>${pName}</strong> chưa chạy ads — đang hiển thị ví dụ minh họa`;
+              bannerBtn.style.display = "none";
+            } else {
+              // Chưa kết nối → hiện nút kết nối ngay
+              bannerTxt.innerHTML = `Đang xem <strong>dữ liệu minh họa</strong> — kết nối tài khoản ads để thấy số liệu thực`;
+              bannerBtn.style.display = "";
+            }
+          } else {
+            banner.classList.remove("show");
+          }
+
           checkAlerts(d.budgets, d.channel_stats);
 
           if (isAll) {
-            renderAllMetrics(d);
-            renderCompareCards(d);
-            renderAllChart(d);
-            renderChannelTable("chTableAll", d.channel_stats, d.budgets);
-            renderROI("roiAll", d.channel_stats);
-            renderBudgets("budgetAll", d.budgets, d.channel_stats);
+            lastAllData = d; // Cache data lại
+            renderFilteredAll(d); // Render qua filter
           } else {
             renderPlatformView(platform, d);
           }
@@ -1781,48 +2274,26 @@
         }
       }
 
-      // ── ALL: METRICS ─────────────────────────────────────────────────
+      // ── ALL METRICS ──
       function renderAllMetrics(d) {
         document.getElementById("metricsAll").innerHTML = `
-    <div class="metric m-blue">
-      <div class="m-label">Tổng chi phí</div>
-      <div class="m-value" style="color:var(--accent)">${fmtM(d.total_spend)}</div>
-      <div class="m-sub up">↑ 12.3% so tháng trước</div>
-    </div>
-    <div class="metric m-green">
-      <div class="m-label">Doanh thu (ước)</div>
-      <div class="m-value" style="color:var(--ok)">${fmtM(d.total_revenue)}</div>
-      <div class="m-sub up">↑ 18.7% vs tháng trước</div>
-    </div>
-    <div class="metric m-orange">
-      <div class="m-label">ROAS trung bình</div>
-      <div class="m-value" style="color:var(--orange)">${d.roas}x</div>
-      <div class="m-sub" style="color:var(--text3)">Mục tiêu: 4.0x</div>
-    </div>
-    <div class="metric m-yellow">
-      <div class="m-label">ROI tổng</div>
-      <div class="m-value" style="color:var(--warn)">${d.roi}%</div>
-      <div class="m-sub up">↑ 6.4% kỳ trước</div>
-    </div>
-    <div class="metric m-red">
-      <div class="m-label">CPA trung bình</div>
-      <div class="m-value" style="color:var(--danger)">${fmt(d.cpa)}đ</div>
-      <div class="m-sub" style="color:var(--text3)">Mục tiêu: 120,000đ</div>
-    </div>`;
+          <div class="metric m-blue"><div class="m-label">Tổng chi phí</div><div class="m-value" style="color:var(--accent)">${fmtM(d.total_spend)}</div><div class="m-sub up">↑ 12.3% so tháng trước</div></div>
+          <div class="metric m-green"><div class="m-label">Doanh thu (ước)</div><div class="m-value" style="color:var(--ok)">${fmtM(d.total_revenue)}</div><div class="m-sub up">↑ 18.7% vs tháng trước</div></div>
+          <div class="metric m-orange"><div class="m-label">ROAS trung bình</div><div class="m-value" style="color:var(--orange)">${d.roas}x</div><div class="m-sub" style="color:var(--text3)">Mục tiêu: 4.0x</div></div>
+          <div class="metric m-yellow"><div class="m-label">ROI tổng</div><div class="m-value" style="color:var(--warn)">${d.roi}%</div><div class="m-sub up">↑ 6.4% kỳ trước</div></div>
+          <div class="metric m-red"><div class="m-label">CPA trung bình</div><div class="m-value" style="color:var(--danger)">${fmt(d.cpa)}đ</div><div class="m-sub" style="color:var(--text3)">Mục tiêu: 120,000đ</div></div>`;
       }
 
-      // ── ALL: COMPARE CARDS ────────────────────────────────────────────
+      // ── COMPARE CARDS ──
       function renderCompareCards(d) {
-        const platforms = ["facebook", "google", "tiktok"];
         const icons = {
           facebook: { icon: "f", bg: "var(--fb)", cls: "cc-fb" },
           google: { icon: "G", bg: "var(--gg)", cls: "cc-gg" },
           tiktok: { icon: "T", bg: "var(--tt)", cls: "cc-tt" },
         };
-
-        // Only show platforms that are connected OR all if none connected
-        const toShow = platforms.filter((p) => d.channel_stats[p]);
-
+        const toShow = ["facebook", "google", "tiktok"].filter(
+          (p) => d.channel_stats[p],
+        );
         document.getElementById("compareCards").innerHTML = toShow
           .map((p) => {
             const s = d.channel_stats[p];
@@ -1835,57 +2306,52 @@
                 : s.roas >= 3
                   ? "var(--warn)"
                   : "var(--danger)";
-            return `
-      <div class="compare-card ${m.cls}">
-        <div class="cc-header">
-          <div class="p-icon ${p === "tiktok" ? "p-tt" : p === "google" ? "p-gg" : "p-fb"}">${m.icon}</div>
-          <div class="cc-name">${PLATFORM_META[p].name}</div>
-          <span class="cc-source ${srcCls}">${srcLbl}</span>
-        </div>
-        <div class="cc-metrics">
-          <div class="cc-metric"><span class="cc-metric-lbl">Chi phí</span><span class="cc-metric-val">${fmtM(s.spend)}</span></div>
-          <div class="cc-metric"><span class="cc-metric-lbl">Doanh thu</span><span class="cc-metric-val">${fmtM(s.revenue)}</span></div>
-          <div class="cc-metric"><span class="cc-metric-lbl">ROAS</span><span class="cc-metric-val" style="color:${roasColor}">${s.roas}x</span></div>
-          <div class="cc-metric"><span class="cc-metric-lbl">CTR</span><span class="cc-metric-val">${s.ctr}%</span></div>
-          <div class="cc-metric"><span class="cc-metric-lbl">CPA</span><span class="cc-metric-val">${fmtMini(s.cpa)}đ</span></div>
-        </div>
-      </div>`;
+            return `<div class="compare-card ${m.cls}">
+            <div class="cc-header"><div class="p-icon ${p === "tiktok" ? "p-tt" : p === "google" ? "p-gg" : "p-fb"}">${m.icon}</div><div class="cc-name">${PLATFORM_META[p].name}</div><span class="cc-source ${srcCls}">${srcLbl}</span></div>
+            <div class="cc-metrics">
+              <div class="cc-metric"><span class="cc-metric-lbl">Chi phí</span><span class="cc-metric-val">${fmtM(s.spend)}</span></div>
+              <div class="cc-metric"><span class="cc-metric-lbl">Doanh thu</span><span class="cc-metric-val">${fmtM(s.revenue)}</span></div>
+              <div class="cc-metric"><span class="cc-metric-lbl">ROAS</span><span class="cc-metric-val" style="color:${roasColor}">${s.roas}x</span></div>
+              <div class="cc-metric"><span class="cc-metric-lbl">CTR</span><span class="cc-metric-val">${s.ctr}%</span></div>
+              <div class="cc-metric"><span class="cc-metric-lbl">CPA</span><span class="cc-metric-val">${fmtMini(s.cpa)}đ</span></div>
+            </div></div>`;
           })
           .join("");
       }
 
-      // ── ALL: CHART ────────────────────────────────────────────────────
-      function renderAllChart(d) {
+      // ── ALL CHART ──
+      function renderAllChart(d, platforms) {
+        platforms = platforms || ["facebook", "google", "tiktok"];
         destroyChart("all");
         const ctx = document.getElementById("chartAll").getContext("2d");
+        const datasets = [];
+        if (platforms.includes("facebook"))
+          datasets.push({
+            label: "Facebook",
+            data: d.spend_series.facebook,
+            backgroundColor: "rgba(24,119,242,.75)",
+            borderRadius: 4,
+            stack: "s",
+          });
+        if (platforms.includes("google"))
+          datasets.push({
+            label: "Google",
+            data: d.spend_series.google,
+            backgroundColor: "rgba(234,67,53,.75)",
+            borderRadius: 4,
+            stack: "s",
+          });
+        if (platforms.includes("tiktok"))
+          datasets.push({
+            label: "TikTok",
+            data: d.spend_series.tiktok,
+            backgroundColor: "rgba(105,201,208,.6)",
+            borderRadius: 4,
+            stack: "s",
+          });
         charts["all"] = new Chart(ctx, {
           type: "bar",
-          data: {
-            labels: d.labels,
-            datasets: [
-              {
-                label: "Facebook",
-                data: d.spend_series.facebook,
-                backgroundColor: "rgba(24,119,242,.75)",
-                borderRadius: 4,
-                stack: "s",
-              },
-              {
-                label: "Google",
-                data: d.spend_series.google,
-                backgroundColor: "rgba(234,67,53,.75)",
-                borderRadius: 4,
-                stack: "s",
-              },
-              {
-                label: "TikTok",
-                data: d.spend_series.tiktok,
-                backgroundColor: "rgba(105,201,208,.6)",
-                borderRadius: 4,
-                stack: "s",
-              },
-            ],
-          },
+          data: { labels: d.labels, datasets },
           options: chartOptions({
             stacked: true,
             labelFn: (c) => `${c.dataset.label}: ${c.raw}M`,
@@ -1893,19 +2359,16 @@
         });
       }
 
-      // ── PLATFORM VIEW ─────────────────────────────────────────────────
+      // ── PLATFORM VIEW ──
       function renderPlatformView(platform, d) {
         const cs = d.channel_stats[platform];
         if (!cs) return;
-
-        // Update header status
         const statusEl = document.getElementById(
           `ph-${platform2short(platform)}-status`,
         );
         const metaEl = document.getElementById(
           `ph-${platform2short(platform)}-meta`,
         );
-
         if (cs.is_connected && !cs.is_mock) {
           statusEl.className = "ph-status connected";
           statusEl.innerHTML =
@@ -1917,65 +2380,39 @@
         } else if (cs.is_connected && cs.is_mock) {
           statusEl.className = "ph-status mock";
           statusEl.innerHTML =
-            '<div class="dot-lg"></div><span>Cần làm mới</span>';
-          metaEl.textContent = "Token hết hạn — vào Kết nối để làm mới";
+            '<div class="dot-lg"></div><span>Demo data</span>';
+          metaEl.textContent =
+            "Đã kết nối nhưng chưa có ads đang chạy — hiển thị dữ liệu minh họa";
         } else {
           statusEl.className = "ph-status mock";
           statusEl.innerHTML =
             '<div class="dot-lg"></div><span>Demo data</span>';
           metaEl.textContent = "Chưa kết nối — đang hiển thị dữ liệu minh họa";
         }
-
-        // Metrics
         const metricsId = {
           facebook: "metricsFb",
           google: "metricsGg",
           tiktok: "metricsTt",
         }[platform];
         document.getElementById(metricsId).innerHTML = `
-    <div class="metric m-blue">
-      <div class="m-label">Chi phí</div>
-      <div class="m-value" style="color:var(--accent)">${fmtM(cs.spend)}</div>
-      <div class="m-sub" style="color:var(--text3)">${currentDays} ngày gần nhất</div>
-    </div>
-    <div class="metric m-green">
-      <div class="m-label">Doanh thu (ước)</div>
-      <div class="m-value" style="color:var(--ok)">${fmtM(cs.revenue)}</div>
-      <div class="m-sub up">Từ conversion</div>
-    </div>
-    <div class="metric m-orange">
-      <div class="m-label">ROAS</div>
-      <div class="m-value" style="color:var(--orange)">${cs.roas}x</div>
-      <div class="m-sub" style="color:${cs.roas >= 4 ? "var(--ok)" : cs.roas >= 3 ? "var(--warn)" : "var(--danger)"}">
-        ${cs.roas >= 4 ? "Xuất sắc" : cs.roas >= 3 ? "Trung bình" : "Cần cải thiện"}
-      </div>
-    </div>
-    <div class="metric m-yellow">
-      <div class="m-label">ROI</div>
-      <div class="m-value" style="color:var(--warn)">${cs.roi}%</div>
-      <div class="m-sub up">Lợi nhuận ròng</div>
-    </div>
-    <div class="metric m-red">
-      <div class="m-label">CPA</div>
-      <div class="m-value" style="color:var(--danger)">${fmt(cs.cpa)}đ</div>
-      <div class="m-sub" style="color:var(--text3)">Chi phí / chuyển đổi</div>
-    </div>`;
-
-        // Single platform chart
+          <div class="metric m-blue"><div class="m-label">Chi phí</div><div class="m-value" style="color:var(--accent)">${fmtM(cs.spend)}</div><div class="m-sub" style="color:var(--text3)">${currentDays} ngày gần nhất</div></div>
+          <div class="metric m-green"><div class="m-label">Doanh thu (ước)</div><div class="m-value" style="color:var(--ok)">${fmtM(cs.revenue)}</div><div class="m-sub up">Từ conversion</div></div>
+          <div class="metric m-orange"><div class="m-label">ROAS</div><div class="m-value" style="color:var(--orange)">${cs.roas}x</div><div class="m-sub" style="color:${cs.roas >= 4 ? "var(--ok)" : cs.roas >= 3 ? "var(--warn)" : "var(--danger)"}">${cs.roas >= 4 ? "Xuất sắc" : cs.roas >= 3 ? "Trung bình" : "Cần cải thiện"}</div></div>
+          <div class="metric m-yellow"><div class="m-label">ROI</div><div class="m-value" style="color:var(--warn)">${cs.roi}%</div><div class="m-sub up">Lợi nhuận ròng</div></div>
+          <div class="metric m-red"><div class="m-label">CPA</div><div class="m-value" style="color:var(--danger)">${fmt(cs.cpa)}đ</div><div class="m-sub" style="color:var(--text3)">Chi phí / chuyển đổi</div></div>`;
         const chartId = {
           facebook: "chartFb",
           google: "chartGg",
           tiktok: "chartTt",
         }[platform];
-        const chartKey = platform;
         const colors = {
           facebook: "rgba(24,119,242,.8)",
           google: "rgba(234,67,53,.8)",
           tiktok: "rgba(105,201,208,.75)",
         };
-        destroyChart(chartKey);
+        destroyChart(platform);
         const ctx = document.getElementById(chartId).getContext("2d");
-        charts[chartKey] = new Chart(ctx, {
+        charts[platform] = new Chart(ctx, {
           type: "bar",
           data: {
             labels: d.labels,
@@ -1993,31 +2430,23 @@
             labelFn: (c) => `${fmtM(c.raw * 1_000_000)}`,
           }),
         });
-
-        // Detail table
         const detailId = {
           facebook: "fbDetail",
           google: "ggDetail",
           tiktok: "ttDetail",
         }[platform];
-        document.getElementById(detailId).innerHTML = `
-    <table class="ch-table">
-      <tbody>
-        <tr><td style="color:var(--text2)">Lượt hiển thị</td><td class="mono" style="text-align:right">${fmt(cs.impressions)}</td></tr>
-        <tr><td style="color:var(--text2)">Lượt nhấp</td><td class="mono" style="text-align:right">${fmt(cs.clicks)}</td></tr>
-        <tr><td style="color:var(--text2)">CTR</td><td class="mono" style="text-align:right">${cs.ctr}%</td></tr>
-        <tr><td style="color:var(--text2)">Chi phí / click</td><td class="mono" style="text-align:right">${fmt(cs.spend / Math.max(cs.clicks, 1))}đ</td></tr>
-        <tr><td style="color:var(--text2)">ROAS</td><td class="mono" style="text-align:right;color:${cs.roas >= 4 ? "var(--ok)" : cs.roas >= 3 ? "var(--warn)" : "var(--danger)"}">${cs.roas}x</td></tr>
-      </tbody>
-    </table>`;
-
-        // ROI
+        document.getElementById(detailId).innerHTML =
+          `<table class="ch-table"><tbody>
+          <tr><td style="color:var(--text2)">Lượt hiển thị</td><td class="mono" style="text-align:right">${fmt(cs.impressions)}</td></tr>
+          <tr><td style="color:var(--text2)">Lượt nhấp</td><td class="mono" style="text-align:right">${fmt(cs.clicks)}</td></tr>
+          <tr><td style="color:var(--text2)">CTR</td><td class="mono" style="text-align:right">${cs.ctr}%</td></tr>
+          <tr><td style="color:var(--text2)">Chi phí / click</td><td class="mono" style="text-align:right">${fmt(cs.spend / Math.max(cs.clicks, 1))}đ</td></tr>
+          <tr><td style="color:var(--text2)">ROAS</td><td class="mono" style="text-align:right;color:${cs.roas >= 4 ? "var(--ok)" : cs.roas >= 3 ? "var(--warn)" : "var(--danger)"}">${cs.roas}x</td></tr>
+        </tbody></table>`;
         const roiId = { facebook: "roiFb", google: "roiGg", tiktok: "roiTt" }[
           platform
         ];
         renderROI(roiId, d.channel_stats);
-
-        // Budget
         const budgetId = {
           facebook: "budgetFb",
           google: "budgetGg",
@@ -2032,7 +2461,7 @@
         return { facebook: "fb", google: "gg", tiktok: "tt" }[p] || p;
       }
 
-      // ── CHANNEL TABLE ─────────────────────────────────────────────────
+      // ── CHANNEL TABLE ──
       function renderChannelTable(tableId, ch, budgets) {
         const rows = {
           facebook: { icon: "f", bg: "var(--fb)", name: "Facebook" },
@@ -2067,28 +2496,13 @@
           const srcBadge = s.is_mock
             ? '<span class="badge b-warn" style="font-size:9.5px">Demo</span>'
             : '<span class="badge b-ok" style="font-size:9.5px">Live</span>';
-          html += `<tr>
-      <td>
-        <div class="ch-name">
-          <div class="ch-icon" style="background:${r.bg}">${r.icon}</div>
-          <div>${r.name} ${srcBadge}</div>
-        </div>
-        ${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}
-      </td>
-      <td>
-        <span class="mono">${fmtM(s.spend)}</span>
-        ${budget ? `<br><span style="font-size:10.5px;color:${color}">${pct}% NS</span>` : ""}
-      </td>
-      <td class="mono" style="color:${rcolor}">${s.roas}x</td>
-      <td style="color:var(--text2)">${s.ctr}%</td>
-      <td>${badge}</td>
-    </tr>`;
+          html += `<tr><td><div class="ch-name"><div class="ch-icon" style="background:${r.bg}">${r.icon}</div><div>${r.name} ${srcBadge}</div></div>${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}</td><td><span class="mono">${fmtM(s.spend)}</span>${budget ? `<br><span style="font-size:10.5px;color:${color}">${pct}% NS</span>` : ""}</td><td class="mono" style="color:${rcolor}">${s.roas}x</td><td style="color:var(--text2)">${s.ctr}%</td><td>${badge}</td></tr>`;
         }
         html += "</tbody>";
         document.getElementById(tableId).innerHTML = html;
       }
 
-      // ── ROI BARS ──────────────────────────────────────────────────────
+      // ── ROI BARS ──
       function renderROI(elId, ch) {
         const items = [
           { lbl: "FB · Brand", roi: 388, color: "#1877F2" },
@@ -2109,64 +2523,134 @@
         document.getElementById(elId).innerHTML = items
           .map(
             (i) => `
-    <div class="roi-row">
-      <div class="roi-lbl">${i.lbl}</div>
-      <div class="roi-wrap">
-        <div class="roi-fill" style="width:${Math.round((i.roi / max) * 100)}%;background:${i.color}">${i.roi}%</div>
-      </div>
-      <div class="roi-val">${i.roi}%</div>
-    </div>`,
+          <div class="roi-row"><div class="roi-lbl">${i.lbl}</div><div class="roi-wrap"><div class="roi-fill" style="width:${Math.round((i.roi / max) * 100)}%;background:${i.color}">${i.roi}%</div></div><div class="roi-val">${i.roi}%</div></div>`,
           )
           .join("");
       }
 
-      // ── BUDGETS ───────────────────────────────────────────────────────
+      // ── BUDGETS ──
       function renderBudgets(elId, budgets, ch) {
         const names = {
           facebook: "Facebook Ads",
           google: "Google Ads",
           tiktok: "TikTok Ads",
         };
+        const colors = {
+          facebook: "var(--fb)",
+          google: "var(--gg)",
+          tiktok: "var(--tt)",
+        };
+        const icons = { facebook: "f", google: "G", tiktok: "T" };
+        const isAll = elId === "budgetAll";
         let html = "";
-        let totalLimit = 0,
-          totalSpend = 0;
-        for (const [k, limit] of Object.entries(budgets)) {
-          const spend = ch[k]?.spend || 0;
-          const pct = Math.round((spend / limit) * 100);
-          totalLimit += limit;
-          totalSpend += spend;
-          const cls = pct >= 85 ? "bi-danger" : pct >= 70 ? "bi-warn" : "bi-ok";
-          const color =
-            pct >= 85
+
+        // Lấy budget settings từ API (đã có trong d.budget_settings hoặc dùng budgets)
+        const platforms = ["facebook", "google", "tiktok"];
+
+        // Tính tổng nếu cùng ngày
+        let sameDate = false;
+        const activeBudgets = platforms.filter((p) => budgets[p]);
+        if (activeBudgets.length >= 2) {
+          const dates = activeBudgets.map(
+            (p) => `${budgets[p]?.start_date}_${budgets[p]?.end_date}`,
+          );
+          sameDate = dates.every((d) => d === dates[0]);
+        }
+
+        // Header bảng
+        html += `<div style="background:rgba(255,255,255,.02);border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);display:grid;grid-template-columns:1fr 1.2fr 1.2fr 80px;gap:8px;text-transform:uppercase;letter-spacing:.5px">
+            <span>Nền tảng</span><span>Ngân sách</span><span>Khoảng thời gian</span><span style="text-align:right">Đã dùng</span>
+        </div>`;
+
+        for (const p of platforms) {
+          const budget = budgets[p];
+          const spend = ch[p]?.spend || 0;
+          const isMock = ch[p]?.is_mock;
+
+          if (!budget) {
+            html += `<div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);display:grid;grid-template-columns:1fr 1.2fr 1.2fr 80px;gap:8px;align-items:center">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:20px;height:20px;border-radius:5px;background:${colors[p]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${p === "tiktok" ? "#111" : "#fff"}">${icons[p]}</div>
+                    <span style="font-size:13px">${names[p]}</span>
+                </div>
+                <span style="font-size:12px;color:var(--text3)">Chưa thiết lập</span>
+                <span style="font-size:12px;color:var(--text3)">—</span>
+                <span style="font-size:12px;color:var(--text3);text-align:right">—</span>
+            </div>`;
+            continue;
+          }
+
+          const pct = isMock ? null : Math.round((spend / budget) * 100);
+          const color = !pct
+            ? "var(--text3)"
+            : pct >= 100
               ? "var(--danger)"
-              : pct >= 70
+              : pct >= 90
                 ? "var(--warn)"
                 : "var(--ok)";
-          html += `<div class="budget-item ${cls}">
-      <div class="bi-top">
-        <span class="bi-name">${names[k] || k}</span>
-        <span style="color:${color};font-family:'JetBrains Mono',monospace;font-size:11px">${pct}% · ${fmtM(spend)}/${fmtM(limit)}</span>
-      </div>
-      <div class="bi-prog"><div class="bi-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>
-    </div>`;
+
+          html += `<div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03)">
+            <div style="display:grid;grid-template-columns:1fr 1.2fr 1.2fr 80px;gap:8px;align-items:center;margin-bottom:${isMock ? 0 : 6}px">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:20px;height:20px;border-radius:5px;background:${colors[p]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${p === "tiktok" ? "#111" : "#fff"}">${icons[p]}</div>
+                    <span style="font-size:13px">${names[p]}</span>
+                </div>
+                <span style="font-size:12px;font-family:'JetBrains Mono',monospace">${fmtM(budget)}</span>
+                <span style="font-size:11px;color:var(--text2)">${budget.start_date || ""} → ${budget.end_date || ""}</span>
+                <span style="font-size:12px;font-weight:600;color:${color};text-align:right;font-family:'JetBrains Mono',monospace">
+                    ${isMock ? '<span style="color:var(--text3);font-size:10px">Mock</span>' : pct + "%"}
+                </span>
+            </div>
+            ${
+              !isMock
+                ? `<div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-left:28px">
+                <div style="width:${Math.min(pct, 100)}%;height:100%;background:${color};border-radius:2px;transition:width .3s"></div>
+            </div>`
+                : ""
+            }
+        </div>`;
         }
-        if (totalLimit) {
-          const tp = Math.round((totalSpend / totalLimit) * 100);
-          html += `<div style="margin-top:4px;padding:10px;background:rgba(33,150,243,.06);border-radius:8px;border:1px solid rgba(33,150,243,.15)">
-      <div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">TỔNG NGÂN SÁCH</div>
-      <div style="display:flex;justify-content:space-between;font-size:12px">
-        <span>Đã chi: <strong style="color:var(--accent);font-family:'JetBrains Mono',monospace">${fmtM(totalSpend)}</strong></span>
-        <span>Còn lại: <strong style="color:var(--ok);font-family:'JetBrains Mono',monospace">${fmtM(totalLimit - totalSpend)}</strong></span>
-      </div>
-      <div class="bi-prog" style="margin-top:7px;height:5px"><div class="bi-fill" style="width:${tp}%;background:linear-gradient(90deg,var(--accent),var(--ok))"></div></div>
-    </div>`;
+
+        // Tổng nếu cùng ngày và có data thật
+        if (sameDate && activeBudgets.length >= 2) {
+          const totalLimit = activeBudgets.reduce(
+            (s, p) => s + (budgets[p] || 0),
+            0,
+          );
+          const totalSpend = activeBudgets
+            .filter((p) => !ch[p]?.is_mock)
+            .reduce((s, p) => s + (ch[p]?.spend || 0), 0);
+          const hasMock = activeBudgets.some((p) => ch[p]?.is_mock);
+          if (!hasMock) {
+            const tp = Math.round((totalSpend / totalLimit) * 100);
+            const tcolor =
+              tp >= 100
+                ? "var(--danger)"
+                : tp >= 90
+                  ? "var(--warn)"
+                  : "var(--ok)";
+            html += `<div style="padding:10px 14px;background:rgba(33,150,243,.06)">
+                <div style="display:grid;grid-template-columns:1fr 1.2fr 1.2fr 80px;gap:8px;align-items:center;margin-bottom:6px">
+                    <span style="font-size:12px;font-weight:600;color:var(--accent)">∑ Tổng</span>
+                    <span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent)">${fmtM(totalLimit)}</span>
+                    <span style="font-size:11px;color:var(--text2)">${budgets[activeBudgets[0]]?.start_date} → ${budgets[activeBudgets[0]]?.end_date}</span>
+                    <span style="font-size:12px;font-weight:600;color:${tcolor};text-align:right;font-family:'JetBrains Mono',monospace">${tp}%</span>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,.06);border-radius:2px">
+                    <div style="width:${Math.min(tp, 100)}%;height:100%;background:linear-gradient(90deg,var(--accent),${tcolor});border-radius:2px"></div>
+                </div>
+            </div>`;
+          }
         }
+
+        html += `</div>`;
         document.getElementById(elId).innerHTML =
           html ||
           '<div style="color:var(--text3);font-size:13px;text-align:center;padding:24px">Chưa có ngân sách</div>';
       }
 
-      // ── ALERTS ────────────────────────────────────────────────────────
+      // ── ALERTS ──
       function checkAlerts(budgets, ch) {
         if (!budgets || !ch) return;
         const names = {
@@ -2187,12 +2671,10 @@
           bar.classList.add("show");
           document.getElementById("alertText").innerHTML =
             "⚠ CẢNH BÁO: " + alerts.join(" — ");
-        } else {
-          bar.classList.remove("show");
-        }
+        } else bar.classList.remove("show");
       }
 
-      // ── CHART HELPER ──────────────────────────────────────────────────
+      // ── CHART HELPERS ──
       function chartOptions({ stacked = false, labelFn = null } = {}) {
         return {
           responsive: true,
@@ -2226,10 +2708,9 @@
         }
       }
 
-      // ── SETTINGS ──────────────────────────────────────────────────────
+      // ── SETTINGS ──
       async function loadSettings() {
         await loadConnectionStatus();
-
         const cfg = {
           facebook: {
             name: "Facebook Ads",
@@ -2253,28 +2734,21 @@
             desc: "Kết nối TikTok Business Center để theo dõi In-Feed Ads, TopView và Brand Takeover.",
           },
         };
-
         let html = "";
         for (const [p, c] of Object.entries(cfg)) {
           const conn = connections[p] || {};
           const isConn = conn.connected;
           const needsAuth = conn.needs_reauth;
           const canConn = conn.can_connect;
-
-          let statusBadge = "";
-          let detailHtml = "";
-          let actionsHtml = "";
-          let cardClass = "";
-          let tokenBar = "";
-
+          let statusBadge = "",
+            detailHtml = "",
+            actionsHtml = "",
+            cardClass = "",
+            tokenBar = "";
           if (isConn && !needsAuth) {
             statusBadge =
               '<span class="conn-status-badge csb-on"><span>●</span> Đã kết nối</span>';
-            detailHtml = `
-        <div><strong>${conn.account_name || "Tài khoản"}</strong></div>
-        <div style="color:var(--text3);font-size:11px;margin-top:2px">ID: ${conn.account_id || "—"}</div>
-        ${conn.days_left != null ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">Token còn ${conn.days_left} ngày</div>` : ""}
-      `;
+            detailHtml = `<div><strong>${conn.account_name || "Tài khoản"}</strong></div><div style="color:var(--text3);font-size:11px;margin-top:2px">ID: ${conn.account_id || "—"}</div>${conn.days_left != null ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">Token còn ${conn.days_left} ngày</div>` : ""}`;
             if (conn.days_left != null) {
               const pct = Math.min(
                 Math.round((conn.days_left / 60) * 100),
@@ -2286,15 +2760,9 @@
                   : conn.days_left < 14
                     ? "var(--warn)"
                     : "var(--ok)";
-              tokenBar = `<div class="token-bar">
-          <div class="token-bar-label"><span>Hiệu lực token</span><span style="color:${color}">${conn.days_left} ngày</span></div>
-          <div class="token-bar-track"><div class="token-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-        </div>`;
+              tokenBar = `<div class="token-bar"><div class="token-bar-label"><span>Hiệu lực token</span><span style="color:${color}">${conn.days_left} ngày</span></div><div class="token-bar-track"><div class="token-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
             }
-            actionsHtml = `
-        <button class="btn-connect btn-connect-primary" onclick="reconnect('${p}','${c.authUrl}')">🔄 Làm mới token</button>
-        <button class="btn-connect btn-connect-secondary" onclick="disconnectPlatform('${p}')">Ngắt kết nối</button>
-      `;
+            actionsHtml = `<button class="btn-connect btn-connect-primary" onclick="reconnect('${p}','${c.authUrl}')">🔄 Làm mới token</button><button class="btn-connect btn-connect-secondary" onclick="disconnectPlatform('${p}')">Ngắt kết nối</button>`;
             cardClass = "connected";
           } else if (isConn && needsAuth) {
             statusBadge =
@@ -2310,38 +2778,69 @@
           } else {
             statusBadge =
               '<span class="conn-status-badge csb-off">Chưa cấu hình</span>';
-            detailHtml = `
-        <div style="color:var(--text3)">${c.desc}</div>
-        <div style="margin-top:8px;padding:7px 10px;background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.15);border-radius:7px;font-size:11px;color:var(--warn)">
-          Cần cấu hình credentials trong <span class="mono">.env</span> trước khi kết nối.
-        </div>`;
+            detailHtml = `<div style="color:var(--text3)">${c.desc}</div><div style="margin-top:8px;padding:7px 10px;background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.15);border-radius:7px;font-size:11px;color:var(--warn)">Cần cấu hình credentials trong <span class="mono">.env</span> trước khi kết nối.</div>`;
             actionsHtml = `<button class="btn-connect btn-connect-disabled" disabled>Chưa sẵn sàng</button>`;
           }
-
-          html += `
-      <div class="conn-card ${cardClass}">
-        <div class="conn-card-header">
-          <div class="conn-icon" style="background:${c.bg};${p === "tiktok" ? "color:#111" : ""}">${c.icon}</div>
-          <div>
-            <div class="conn-name">${c.name}</div>
-            <div class="conn-type">Advertising Platform</div>
-          </div>
-          ${statusBadge}
-        </div>
-        <div class="conn-detail">${detailHtml}</div>
-        ${tokenBar}
-        <div class="conn-actions">${actionsHtml}</div>
-      </div>`;
+          html += `<div class="conn-card ${cardClass}"><div class="conn-card-header"><div class="conn-icon" style="background:${c.bg};${p === "tiktok" ? "color:#111" : ""}">${c.icon}</div><div><div class="conn-name">${c.name}</div><div class="conn-type">Advertising Platform</div></div>${statusBadge}</div><div class="conn-detail">${detailHtml}</div>${tokenBar}<div class="conn-actions">${actionsHtml}</div></div>`;
         }
-
         document.getElementById("settingsGrid").innerHTML = html;
+        // Load budget settings
+        loadBudgetForms();
       }
 
       function connectPlatform(url) {
         window.location.href = url;
       }
-      function reconnect(platform, url) {
-        window.location.href = url;
+
+      async function reconnect(platform, url) {
+        // Facebook: thử refresh token trước, nếu lỗi mới redirect OAuth
+        // Google/TikTok: luôn redirect OAuth vì cần user consent
+        if (platform === "facebook") {
+          const btn = document.querySelector(
+            `[onclick="reconnect('${platform}','${url}')"]`,
+          );
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "⏳ Đang làm mới...";
+          }
+
+          try {
+            const res = await fetch(`/api/refresh/${platform}`, {
+              method: "POST",
+            });
+            const data = await res.json();
+
+            if (data.ok) {
+              showToast(`✅ ${data.message}`, "ok");
+              await loadSettings(); // reload settings card
+              await loadConnectionStatus(); // reload sidebar dots
+            } else if (data.needs_reauth) {
+              // Token hết hạn hoàn toàn → redirect OAuth
+              showToast(
+                "⚠ Token hết hạn, đang chuyển hướng kết nối lại...",
+                "warn",
+              );
+              setTimeout(() => {
+                window.location.href = url;
+              }, 1200);
+            } else {
+              showToast(`❌ ${data.error}`, "danger");
+              if (btn) {
+                btn.disabled = false;
+                btn.textContent = "🔄 Làm mới token";
+              }
+            }
+          } catch (e) {
+            showToast("❌ Lỗi kết nối server", "danger");
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = "🔄 Làm mới token";
+            }
+          }
+        } else {
+          // Google & TikTok: redirect OAuth để lấy token mới
+          window.location.href = url;
+        }
       }
 
       async function disconnectPlatform(platform) {
@@ -2356,7 +2855,67 @@
         }
       }
 
-      // ── MODAL ACTIONS ─────────────────────────────────────────────────
+      // ── ĐỔI MẬT KHẨU ──
+      async function changePassword() {
+        const pwCurrent = document.getElementById("pwCurrent").value.trim();
+        const pwNew = document.getElementById("pwNew").value.trim();
+        const pwConfirm = document.getElementById("pwConfirm").value.trim();
+        const msgEl = document.getElementById("pwMsg");
+        const btn = document.getElementById("pwBtn");
+
+        // Client-side validation
+        msgEl.className = "pw-msg";
+        if (!pwCurrent || !pwNew || !pwConfirm) {
+          msgEl.textContent = "Vui lòng điền đầy đủ các trường mật khẩu.";
+          msgEl.className = "pw-msg err";
+          return;
+        }
+        if (pwNew.length < 6) {
+          msgEl.textContent = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+          msgEl.className = "pw-msg err";
+          return;
+        }
+        if (pwNew !== pwConfirm) {
+          msgEl.textContent = "Mật khẩu mới và xác nhận không khớp.";
+          msgEl.className = "pw-msg err";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Đang lưu...";
+        try {
+          const res = await fetch("/api/change-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              current_password: pwCurrent,
+              new_password: pwNew,
+            }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            msgEl.textContent = "✅ Đổi mật khẩu thành công!";
+            msgEl.className = "pw-msg ok";
+            document.getElementById("pwCurrent").value = "";
+            document.getElementById("pwNew").value = "";
+            document.getElementById("pwConfirm").value = "";
+          } else {
+            msgEl.textContent = "❌ " + (data.error || "Lỗi không xác định");
+            msgEl.className = "pw-msg err";
+          }
+        } catch (e) {
+          msgEl.textContent = "❌ Lỗi kết nối máy chủ.";
+          msgEl.className = "pw-msg err";
+        }
+        btn.disabled = false;
+        btn.textContent = "💾 Lưu mật khẩu mới";
+        // Tự ẩn thông báo sau 5s
+        setTimeout(() => {
+          msgEl.className = "pw-msg";
+        }, 5000);
+      }
+
+      // ── MODAL ACTIONS ──
       function useFakeData() {
         forceMock = true;
         sessionStorage.setItem("dismissedModal", "1");
@@ -2366,13 +2925,12 @@
       function closeModal() {
         sessionStorage.setItem("dismissedModal", "1");
         document.getElementById("noAdsOverlay").style.display = "none";
-        // Show empty state
         document.getElementById("metricsAll").innerHTML = `
-    <div class="metric m-blue"><div class="m-label">Tổng chi phí</div><div class="m-value" style="color:var(--text3)">—</div></div>
-    <div class="metric m-green"><div class="m-label">Doanh thu</div><div class="m-value" style="color:var(--text3)">—</div></div>
-    <div class="metric m-orange"><div class="m-label">ROAS</div><div class="m-value" style="color:var(--text3)">—</div></div>
-    <div class="metric m-yellow"><div class="m-label">ROI</div><div class="m-value" style="color:var(--text3)">—</div></div>
-    <div class="metric m-red"><div class="m-label">CPA</div><div class="m-value" style="color:var(--text3)">—</div></div>`;
+          <div class="metric m-blue"><div class="m-label">Tổng chi phí</div><div class="m-value" style="color:var(--text3)">—</div></div>
+          <div class="metric m-green"><div class="m-label">Doanh thu</div><div class="m-value" style="color:var(--text3)">—</div></div>
+          <div class="metric m-orange"><div class="m-label">ROAS</div><div class="m-value" style="color:var(--text3)">—</div></div>
+          <div class="metric m-yellow"><div class="m-label">ROI</div><div class="m-value" style="color:var(--text3)">—</div></div>
+          <div class="metric m-red"><div class="m-label">CPA</div><div class="m-value" style="color:var(--text3)">—</div></div>`;
         ["compareCards", "chTableAll", "roiAll", "budgetAll"].forEach((id) => {
           document.getElementById(id).innerHTML =
             '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-title">Chưa có dữ liệu</div>Kết nối tài khoản ads để bắt đầu</div>';
@@ -2384,23 +2942,559 @@
         switchView("settings");
       }
 
-      // ── LOGOUT ────────────────────────────────────────────────────────
+      // ── LOGOUT ──
       async function logout() {
         await fetch("/api/logout", { method: "POST" });
         window.location.href = "/login";
       }
 
-      // ── BOOT ──────────────────────────────────────────────────────────
+      // ── BUDGET FORMS ──────────────────────────────────────────────────────────────
+      async function loadBudgetForms() {
+        const res = await fetch("/api/budget?platform=all");
+        const budgets = await res.json();
+        const platforms = ["facebook", "google", "tiktok"];
+        const colors = {
+          facebook: "var(--fb)",
+          google: "var(--gg)",
+          tiktok: "var(--tt)",
+        };
+        const icons = { facebook: "f", google: "G", tiktok: "T" };
+        const names = {
+          facebook: "Facebook Ads",
+          google: "Google Ads",
+          tiktok: "TikTok Ads",
+        };
+
+        let html = "";
+        for (const p of platforms) {
+          const b = budgets[p] || {};
+          const hasData = b.budget_limit > 0;
+          html += `
+        <div class="conn-card" id="budgetCard-${p}">
+            <div class="conn-card-header">
+                <div class="conn-icon" style="background:${colors[p]};${p === "tiktok" ? "color:#111" : ""}">${icons[p]}</div>
+                <div><div class="conn-name">${names[p]}</div>
+                <div class="conn-type">${hasData ? `${fmt(b.budget_limit)}đ · ${b.start_date} → ${b.end_date}` : "Chưa thiết lập"}</div></div>
+                ${hasData ? `<span class="conn-status-badge csb-on">Đã set</span>` : `<span class="conn-status-badge csb-off">Chưa set</span>`}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+                <div>
+                    <div style="font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Ngân sách (đ)</div>
+                    <input type="number" id="bl-${p}" placeholder="VD: 1000000000"
+                        value="${hasData ? b.budget_limit : ""}"
+                        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none"/>
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Từ ngày</div>
+                    <input type="date" id="bs-${p}" value="${hasData ? b.start_date : ""}"
+                        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color-scheme:dark"/>
+                </div>
+                <div>
+                    <div style="font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Đến ngày</div>
+                    <input type="date" id="be-${p}" value="${hasData ? b.end_date : ""}"
+                        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;color-scheme:dark"/>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button onclick="saveBudget('${p}')" class="btn-connect btn-connect-primary" style="flex:1;padding:8px">💾 Lưu ngân sách</button>
+                ${hasData ? `<button onclick="deleteBudget('${p}')" class="btn-connect btn-connect-secondary" style="padding:8px 14px">Xóa</button>` : ""}
+            </div>
+            <div id="budgetMsg-${p}" style="margin-top:8px;font-size:12px;display:none"></div>
+        </div>`;
+        }
+        document.getElementById("budgetFormsGrid").innerHTML = html;
+      }
+
+      async function saveBudget(platform) {
+        const limit = document.getElementById(`bl-${platform}`).value;
+        const start = document.getElementById(`bs-${platform}`).value;
+        const end = document.getElementById(`be-${platform}`).value;
+        const msg = document.getElementById(`budgetMsg-${platform}`);
+
+        if (!limit || !start || !end) {
+          msg.textContent = "⚠ Vui lòng điền đầy đủ thông tin";
+          msg.style.cssText = "display:block;color:var(--warn)";
+          return;
+        }
+        if (new Date(end) <= new Date(start)) {
+          msg.textContent = "⚠ Ngày kết thúc phải sau ngày bắt đầu";
+          msg.style.cssText = "display:block;color:var(--warn)";
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/budget", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              platform,
+              budget_limit: parseFloat(limit),
+              start_date: start,
+              end_date: end,
+            }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            msg.textContent = "✅ Đã lưu ngân sách!";
+            msg.style.cssText = "display:block;color:var(--ok)";
+            setTimeout(() => loadBudgetForms(), 1000);
+            checkBudgetAlerts(); // Check ngay sau khi lưu
+          } else {
+            msg.textContent = "❌ " + data.error;
+            msg.style.cssText = "display:block;color:var(--danger)";
+          }
+        } catch (e) {
+          msg.textContent = "❌ Lỗi kết nối";
+          msg.style.cssText = "display:block;color:var(--danger)";
+        }
+      }
+
+      async function deleteBudget(platform) {
+        if (!confirm(`Xóa ngân sách ${PLATFORM_META[platform].name}?`)) return;
+        await fetch(`/api/budget/${platform}`, { method: "DELETE" });
+        showToast(`Đã xóa ngân sách ${PLATFORM_META[platform].name}`, "warn");
+        loadBudgetForms();
+        checkBudgetAlerts();
+      }
+
+      // ── NOTIFICATION BELL ────────────────────────────────────────────────────────
+      let notifOpen = false;
+
+      function toggleNotifications() {
+        const dd = document.getElementById("notifDropdown");
+        notifOpen = !notifOpen;
+        dd.style.display = notifOpen ? "block" : "none";
+      }
+
+      // Click ngoài để đóng
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("bellWrap")?.contains(e.target)) {
+          document.getElementById("notifDropdown").style.display = "none";
+          notifOpen = false;
+        }
+      });
+
+      function applyPlatformFilter() {
+        selectedPlatforms = ["facebook", "google", "tiktok"].filter(
+          (p) => document.getElementById(`chk-${p}`)?.checked,
+        );
+
+        // Phải chọn ít nhất 1
+        if (selectedPlatforms.length === 0) {
+          document.getElementById("chk-facebook").checked = true;
+          selectedPlatforms = ["facebook"];
+        }
+
+        if (!lastAllData) return;
+
+        // Thông báo platform nào là mock
+        const mockPlatforms = selectedPlatforms.filter(
+          (p) => lastAllData.channel_stats[p]?.is_mock,
+        );
+        if (
+          mockPlatforms.length > 0 &&
+          mockPlatforms.length < selectedPlatforms.length
+        ) {
+          showToast(
+            `⚠ ${mockPlatforms.map((p) => PLATFORM_META[p].name).join(", ")} đang dùng dữ liệu minh họa`,
+            "warn",
+          );
+        }
+        if (mockPlatforms.length === selectedPlatforms.length) {
+          showToast("🎭 Tất cả platform đang dùng dữ liệu minh họa", "warn");
+        }
+
+        renderFilteredAll(lastAllData);
+      }
+
+      function renderFilteredAll(d) {
+        const ps = selectedPlatforms;
+
+        // Tính lại metrics theo platform được chọn
+        const ts = ps.reduce((s, p) => s + (d.channel_stats[p]?.spend || 0), 0);
+        const tr = ps.reduce(
+          (s, p) => s + (d.channel_stats[p]?.revenue || 0),
+          0,
+        );
+        const cl = ps.reduce(
+          (s, p) => s + (d.channel_stats[p]?.clicks || 0),
+          0,
+        );
+
+        const filtered = {
+          ...d,
+          total_spend: ts,
+          total_revenue: tr,
+          roas: ts ? round2(tr / ts) : 0,
+          roi: ts ? round2(((tr - ts) / ts) * 100) : 0,
+          cpa: cl ? Math.round(ts / cl) : 0,
+          channel_stats: Object.fromEntries(
+            Object.entries(d.channel_stats).filter(([k]) => ps.includes(k)),
+          ),
+          spend_series: {
+            ...d.spend_series,
+            // Chỉ giữ series của platform được chọn
+          },
+        };
+
+        renderAllMetrics(filtered);
+        renderCompareCards(filtered);
+        renderCompareNotice(d); // Hiện thông báo platform bị ẩn
+        renderAllChart(filtered, ps);
+        renderChannelTable(
+          "chTableAll",
+          filtered.channel_stats,
+          filtered.budgets,
+        );
+        renderROI("roiAll", filtered.channel_stats);
+        renderBudgets("budgetAll", filtered.budgets, filtered.channel_stats);
+      }
+
+      function round2(n) {
+        return Math.round(n * 100) / 100;
+      }
+
+      function renderCompareNotice(d) {
+        const hidden = ["facebook", "google", "tiktok"].filter(
+          (p) => !selectedPlatforms.includes(p),
+        );
+        const noticeEl = document.getElementById("compareNotice");
+        if (!noticeEl) return;
+        if (hidden.length === 0) {
+          noticeEl.style.display = "none";
+          return;
+        }
+        noticeEl.style.display = "flex";
+        noticeEl.innerHTML = `<span style="font-size:13px;color:var(--text2)">
+        Đang ẩn: ${hidden.map((p) => `<strong style="color:var(--text)">${PLATFORM_META[p].name}</strong>`).join(", ")}
+        — <span style="cursor:pointer;color:var(--accent);text-decoration:underline" onclick="resetFilter()">Hiện tất cả</span>
+    </span>`;
+      }
+
+      function resetFilter() {
+        ["facebook", "google", "tiktok"].forEach((p) => {
+          document.getElementById(`chk-${p}`).checked = true;
+        });
+        applyPlatformFilter();
+      }
+
+      async function checkBudgetAlerts() {
+        try {
+          const res = await fetch("/api/budget/check");
+          const data = await res.json();
+          const items = data.alerts || [];
+          const alerts = items.filter((a) => a.is_alert);
+          const badge = document.getElementById("bellBadge");
+          const list = document.getElementById("notifList");
+
+          // Badge chỉ đỏ khi có alert thật
+          if (alerts.length > 0) {
+            badge.style.display = "flex";
+            badge.textContent = alerts.length;
+          } else {
+            badge.style.display = "none";
+          }
+
+          if (items.length === 0) {
+            list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">
+                Chưa thiết lập ngân sách nào</div>`;
+            return;
+          }
+
+          list.innerHTML = items
+            .map((a) => {
+              const color =
+                a.pct >= 100
+                  ? "var(--danger)"
+                  : a.pct >= 90
+                    ? "var(--warn)"
+                    : "var(--ok)";
+              const icon = a.pct >= 100 ? "🚨" : a.pct >= 90 ? "⚠️" : "✅";
+              return `
+            <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:13px;font-weight:500">${icon} ${PLATFORM_META[a.platform]?.name}</span>
+                    <span style="font-size:13px;font-weight:600;color:${color}">${a.pct}%</span>
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-bottom:6px">
+                    ${fmt(a.spend)}đ / ${fmt(a.limit)}đ
+                    · Ngày ${a.days_elapsed}/${a.total_days}
+                    · ${a.start_date} → ${a.end_date}
+                </div>
+                <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px">
+                    <div style="width:${Math.min(a.pct, 100)}%;height:100%;background:${color};border-radius:2px;transition:width .3s"></div>
+                </div>
+            </div>`;
+            })
+            .join("");
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // ── HISTORY ──────────────────────────────────────────────────────────────────
+      let allLogs = [];
+      let historyFilter = "all";
+      let historyPage = 1;
+      const HISTORY_PER_PAGE = 20;
+
+      const ACTION_META = {
+        LOGIN: { icon: "🔐", color: "rgba(33,150,243,.2)", label: "Đăng nhập" },
+        LOGOUT: {
+          icon: "🚪",
+          color: "rgba(156,108,255,.2)",
+          label: "Đăng xuất",
+        },
+        REGISTER: { icon: "✨", color: "rgba(0,229,160,.2)", label: "Đăng ký" },
+        CONNECT_PLATFORM: {
+          icon: "🔗",
+          color: "rgba(0,229,160,.2)",
+          label: "Kết nối",
+        },
+        DISCONNECT_PLATFORM: {
+          icon: "⛓️",
+          color: "rgba(255,61,87,.2)",
+          label: "Ngắt kết nối",
+        },
+        FB_TOKEN_REFRESH: {
+          icon: "🔄",
+          color: "rgba(24,119,242,.2)",
+          label: "Làm mới token FB",
+        },
+        FB_TOKEN_EXPIRED: {
+          icon: "⚠️",
+          color: "rgba(255,193,7,.2)",
+          label: "Token FB hết hạn",
+        },
+        GOOGLE_TOKEN_REFRESH: {
+          icon: "🔄",
+          color: "rgba(234,67,53,.2)",
+          label: "Làm mới token GG",
+        },
+        TIKTOK_TOKEN_REFRESH: {
+          icon: "🔄",
+          color: "rgba(105,201,208,.2)",
+          label: "Làm mới token TT",
+        },
+        SET_BUDGET: {
+          icon: "💰",
+          color: "rgba(255,193,7,.2)",
+          label: "Đặt ngân sách",
+        },
+        CHANGE_PASSWORD: {
+          icon: "🔑",
+          color: "rgba(156,108,255,.2)",
+          label: "Đổi mật khẩu",
+        },
+        VIEW_DASHBOARD: {
+          icon: "📊",
+          color: "rgba(255,255,255,.06)",
+          label: "Xem dashboard",
+        },
+      };
+
+      function getActionMeta(action) {
+        return (
+          ACTION_META[action] || {
+            icon: "📝",
+            color: "rgba(255,255,255,.06)",
+            label: action,
+          }
+        );
+      }
+
+      function getActionGroup(action) {
+        if (["LOGIN", "LOGOUT", "REGISTER"].includes(action)) return "LOGIN";
+        if (
+          [
+            "CONNECT_PLATFORM",
+            "DISCONNECT_PLATFORM",
+            "FB_TOKEN_REFRESH",
+            "FB_TOKEN_EXPIRED",
+            "GOOGLE_TOKEN_REFRESH",
+            "TIKTOK_TOKEN_REFRESH",
+          ].includes(action)
+        )
+          return "CONNECT";
+        if (["SET_BUDGET"].includes(action)) return "BUDGET";
+        return "OTHER";
+      }
+
+      async function loadHistory() {
+        try {
+          const res = await fetch("/api/history");
+          allLogs = await res.json();
+          renderHistoryStats();
+          renderHistoryTimeline();
+        } catch (e) {
+          document.getElementById("historyTimeline").innerHTML =
+            '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Lỗi tải dữ liệu</div></div>';
+        }
+      }
+
+      function renderHistoryStats() {
+        const logins = allLogs.filter((l) => l.action === "LOGIN").length;
+        const connects = allLogs.filter(
+          (l) => l.action === "CONNECT_PLATFORM",
+        ).length;
+        const budgets = allLogs.filter((l) => l.action === "SET_BUDGET").length;
+        const alerts = allLogs.filter(
+          (l) => l.action === "FB_TOKEN_EXPIRED",
+        ).length;
+
+        document.getElementById("historyStats").innerHTML = `
+        <div class="metric m-blue">
+            <div class="m-label">Tổng đăng nhập</div>
+            <div class="m-value" style="color:var(--accent)">${logins}</div>
+            <div class="m-sub">lần đăng nhập</div>
+        </div>
+        <div class="metric m-green">
+            <div class="m-label">Kết nối Platform</div>
+            <div class="m-value" style="color:var(--ok)">${connects}</div>
+            <div class="m-sub">lần kết nối</div>
+        </div>
+        <div class="metric m-yellow">
+            <div class="m-label">Đặt ngân sách</div>
+            <div class="m-value" style="color:var(--warn)">${budgets}</div>
+            <div class="m-sub">lần thiết lập</div>
+        </div>
+        <div class="metric m-orange">
+            <div class="m-label">Tổng hoạt động</div>
+            <div class="m-value" style="color:var(--orange)">${allLogs.length}</div>
+            <div class="m-sub">100 gần nhất</div>
+        </div>`;
+      }
+
+      function setHistoryFilter(filter, btn) {
+        historyFilter = filter;
+        historyPage = 1;
+        document
+          .querySelectorAll("#historyFilters .date-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderHistoryTimeline();
+      }
+
+      function filterHistory() {
+        historyPage = 1;
+        renderHistoryTimeline();
+      }
+
+      function renderHistoryTimeline() {
+        const search =
+          document.getElementById("historySearch")?.value.toLowerCase() || "";
+
+        let filtered = allLogs.filter((log) => {
+          const matchFilter =
+            historyFilter === "all" ||
+            getActionGroup(log.action) === historyFilter;
+          const matchSearch =
+            !search ||
+            log.action?.toLowerCase().includes(search) ||
+            log.detail?.toLowerCase().includes(search);
+          return matchFilter && matchSearch;
+        });
+
+        document.getElementById("historyCount").textContent =
+          `${filtered.length} hoạt động`;
+
+        // Phân trang
+        const totalPages = Math.ceil(filtered.length / HISTORY_PER_PAGE);
+        const start = (historyPage - 1) * HISTORY_PER_PAGE;
+        const pageData = filtered.slice(start, start + HISTORY_PER_PAGE);
+
+        if (pageData.length === 0) {
+          document.getElementById("historyTimeline").innerHTML =
+            '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Không tìm thấy</div>Thử thay đổi bộ lọc</div>';
+          document.getElementById("historyPagination").innerHTML = "";
+          return;
+        }
+
+        // Group theo ngày
+        const groups = {};
+        for (const log of pageData) {
+          const date =
+            log.created_at?.split("T")[0] ||
+            log.created_at?.split(" ")[0] ||
+            "Unknown";
+          if (!groups[date]) groups[date] = [];
+          groups[date].push(log);
+        }
+
+        let html = "";
+        for (const [date, logs] of Object.entries(groups)) {
+          // Format ngày đẹp hơn
+          const d = new Date(date);
+          const dateStr = d.toLocaleDateString("vi-VN", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          html += `<div style="padding:8px 18px;background:rgba(255,255,255,.02);font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)">${dateStr}</div>`;
+
+          for (const log of logs) {
+            const meta = getActionMeta(log.action);
+            const time =
+              log.created_at?.split("T")[1]?.split(".")[0] ||
+              log.created_at?.split(" ")[1]?.split(".")[0] ||
+              "";
+            html += `
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background:${meta.color}">${meta.icon}</div>
+                <div class="timeline-content">
+                    <div class="timeline-action">${meta.label}</div>
+                    ${log.detail ? `<div class="timeline-detail">${log.detail}</div>` : ""}
+                    <div>
+                        <span class="timeline-time">${time}</span>
+                        ${log.ip ? `<span class="timeline-ip">· ${log.ip}</span>` : ""}
+                    </div>
+                </div>
+            </div>`;
+          }
+        }
+        document.getElementById("historyTimeline").innerHTML = html;
+
+        // Phân trang
+        let paginationHtml = "";
+        if (totalPages > 1) {
+          if (historyPage > 1)
+            paginationHtml += `<button class="date-btn" onclick="goHistoryPage(${historyPage - 1})">← Trước</button>`;
+          for (let i = 1; i <= totalPages; i++) {
+            if (i === historyPage)
+              paginationHtml += `<button class="date-btn active">${i}</button>`;
+            else if (
+              i === 1 ||
+              i === totalPages ||
+              Math.abs(i - historyPage) <= 1
+            )
+              paginationHtml += `<button class="date-btn" onclick="goHistoryPage(${i})">${i}</button>`;
+            else if (Math.abs(i - historyPage) === 2)
+              paginationHtml += `<span style="color:var(--text3);padding:0 4px">...</span>`;
+          }
+          if (historyPage < totalPages)
+            paginationHtml += `<button class="date-btn" onclick="goHistoryPage(${historyPage + 1})">Sau →</button>`;
+        }
+        document.getElementById("historyPagination").innerHTML = paginationHtml;
+      }
+
+      function goHistoryPage(page) {
+        historyPage = page;
+        renderHistoryTimeline();
+        document.getElementById("historyTimeline").scrollTop = 0;
+      }
+
+      // ── BOOT ──
       async function boot() {
         await loadConnectionStatus();
         switchView("all");
-
-        // Auto-refresh every 60s (only if not on settings)
+        await checkBudgetAlerts(); // Check ngân sách khi load
         setInterval(() => {
-          if (currentView !== "settings") loadView(currentView);
-        }, 60_000);
+          if (currentView !== "settings" && currentView !== "history")
+            loadView(currentView);
+        }, 30_000);
+        setInterval(checkBudgetAlerts, 5 * 60 * 1000); // Check lại mỗi 5 phút
       }
-
       boot();
     </script>
   </body>

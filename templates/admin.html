@@ -1506,12 +1506,15 @@
         const rows = {
           facebook: { icon: "f", bg: "#1877F2", name: "Facebook" },
           google: { icon: "G", bg: "#EA4335", name: "Google" },
-          tiktok: { icon: "T", bg: "#555", name: "TikTok" },
+          tiktok: { icon: "T", bg: "#69c9d0", name: "TikTok" },
         };
+        const anyConnected = Object.values(ch).some((s) => s.is_connected);
         let html =
-          "<thead><tr><th>Kênh</th><th>Chi phí</th><th>ROAS</th><th>CTR</th><th>Trạng thái</th></tr></thead><tbody>";
+          "<thead><tr><th>Kênh</th><th>Chi phí</th><th>ROAS</th><th>CTR</th><th>Nguồn</th><th>Trạng thái</th></tr></thead><tbody>";
         for (const [k, r] of Object.entries(rows)) {
           const s = ch[k];
+          if (!s) continue;
+          if (anyConnected && !s.is_connected) continue;
           const budget = budgets[k] || 0;
           const pct = budget ? Math.round((s.spend / budget) * 100) : 0;
           const color =
@@ -1532,15 +1535,26 @@
               : s.roas >= 3
                 ? "var(--warn)"
                 : "var(--danger)";
+          const srcBadge = s.is_mock
+            ? '<span class="badge b-warn">🎭 Demo</span>'
+            : '<span class="badge b-ok">✅ Live</span>';
           html += `<tr>
-            <td><div class="ch-name"><div class="ch-icon" style="background:${r.bg}">${r.icon}</div>${r.name}</div>
-              ${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}
+            <td>
+                <div class="ch-name">
+                    <div class="ch-icon" style="background:${r.bg};color:${k === "tiktok" ? "#111" : "#fff"}">${r.icon}</div>
+                    ${r.name}
+                </div>
+                ${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}
             </td>
-            <td><span style="font-family:'JetBrains Mono',monospace">${fmtM(s.spend)}</span>${budget ? `<br><span style="font-size:11px;color:${color}">${pct}% NS</span>` : ""}</td>
+            <td>
+                <span style="font-family:'JetBrains Mono',monospace">${fmtM(s.spend)}</span>
+                ${budget ? `<br><span style="font-size:11px;color:${color}">${pct}% NS</span>` : ""}
+            </td>
             <td style="font-family:'JetBrains Mono',monospace;color:${rcolor}">${s.roas}x</td>
             <td style="color:var(--text2)">${s.ctr}%</td>
+            <td>${srcBadge}</td>
             <td>${badge}</td>
-          </tr>`;
+        </tr>`;
         }
         html += "</tbody>";
         document.getElementById("dashChTable").innerHTML = html;

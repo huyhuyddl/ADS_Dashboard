@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AdsAnalytics Pro — Đăng ký</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #080f1e;
+        --bg2: #0d1829;
+        --bg3: #111f38;
+        --accent: #1e88e5;
+        --accent2: #00c9a7;
+        --text: #e8edf5;
+        --text2: #8b9bb4;
+        --text3: #4a5a72;
+        --border: rgba(255, 255, 255, 0.07);
+        --card: rgba(255, 255, 255, 0.04);
+        --danger: #ff4757;
+        --ok: #00c9a7;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .grid-bg {
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(30, 136, 229, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(30, 136, 229, 0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+      }
+      .glow {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(30, 136, 229, 0.08) 0%,
+          transparent 70%
+        );
+        top: -200px;
+        right: -200px;
+        pointer-events: none;
+      }
+      .glow2 {
+        position: fixed;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(0, 201, 167, 0.06) 0%,
+          transparent 70%
+        );
+        bottom: -100px;
+        left: -100px;
+        pointer-events: none;
+      }
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 44px 44px 40px;
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 1;
+        animation: fadeUp 0.5s ease;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo-text {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+      }
+      .logo-text span {
+        color: var(--accent);
+      }
+      .logo-sub {
+        font-size: 13px;
+        color: var(--text3);
+        margin-top: 6px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--text2);
+        margin-bottom: 7px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+      input {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 16px;
+        color: var(--text);
+        font-size: 14px;
+        font-family: "DM Sans", sans-serif;
+        outline: none;
+        transition: all 0.2s;
+      }
+      input:focus {
+        border-color: var(--accent);
+        background: rgba(30, 136, 229, 0.06);
+      }
+      input::placeholder {
+        color: var(--text3);
+      }
+      input.error-input {
+        border-color: var(--danger);
+      }
+      .field-hint {
+        font-size: 11px;
+        color: var(--text3);
+        margin-top: 5px;
+      }
+      .btn {
+        width: 100%;
+        background: var(--accent);
+        border: none;
+        border-radius: 10px;
+        padding: 13px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 500;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 6px;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn:hover {
+        background: #1976d2;
+        transform: translateY(-1px);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .msg {
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .msg.error {
+        display: block;
+        background: rgba(255, 71, 87, 0.1);
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        color: #ff8a95;
+      }
+      .msg.success {
+        display: block;
+        background: rgba(0, 201, 167, 0.1);
+        border: 1px solid rgba(0, 201, 167, 0.3);
+        color: var(--ok);
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 22px 0 18px;
+        color: var(--text3);
+        font-size: 12px;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .login-link {
+        text-align: center;
+        font-size: 13px;
+        color: var(--text2);
+      }
+      .login-link a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .login-link a:hover {
+        text-decoration: underline;
+      }
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        display: none;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .strength-bar {
+        margin-top: 6px;
+      }
+      .strength-track {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .strength-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.3s,
+          background 0.3s;
+        width: 0%;
+      }
+      .strength-label {
+        font-size: 11px;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-bg"></div>
+    <div class="glow"></div>
+    <div class="glow2"></div>
+
+    <div class="card">
+      <div class="logo">
+        <div class="logo-text">Ads<span>Analytics</span> Pro</div>
+        <div class="logo-sub">Tạo tài khoản mới</div>
+      </div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="form-group">
+        <label>Tên đăng nhập *</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Ít nhất 4 ký tự, không dấu..."
+          autocomplete="username"
+        />
+        <div class="field-hint">Chỉ dùng chữ cái, số và dấu gạch dưới</div>
+      </div>
+
+      <div class="form-group">
+        <label>Mật khẩu *</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Ít nhất 6 ký tự..."
+          autocomplete="new-password"
+          oninput="checkStrength(this.value)"
+        />
+        <div class="strength-bar">
+          <div class="strength-track">
+            <div class="strength-fill" id="strengthFill"></div>
+          </div>
+          <div
+            class="strength-label"
+            id="strengthLabel"
+            style="color: var(--text3)"
+          ></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Xác nhận mật khẩu *</label>
+        <input
+          type="password"
+          id="passwordConfirm"
+          placeholder="Nhập lại mật khẩu..."
+          autocomplete="new-password"
+        />
+      </div>
+
+      <button class="btn" id="regBtn" onclick="doRegister()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnText">Tạo tài khoản</span>
+      </button>
+
+      <div class="divider">hoặc</div>
+      <div class="login-link">
+        Đã có tài khoản? <a href="/login">Đăng nhập ngay</a>
+      </div>
+    </div>
+
+    <script>
+      // Kiểm tra độ mạnh mật khẩu
+      function checkStrength(val) {
+        const fill = document.getElementById("strengthFill");
+        const label = document.getElementById("strengthLabel");
+        if (!val) {
+          fill.style.width = "0%";
+          label.textContent = "";
+          return;
+        }
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const levels = [
+          { w: "20%", bg: "#ff4757", txt: "Rất yếu" },
+          { w: "40%", bg: "#ff6b35", txt: "Yếu" },
+          { w: "60%", bg: "#ffc107", txt: "Trung bình" },
+          { w: "80%", bg: "#00c9a7", txt: "Mạnh" },
+          { w: "100%", bg: "#1e88e5", txt: "Rất mạnh" },
+        ];
+        const l = levels[Math.min(score - 1, 4)];
+        fill.style.width = l.w;
+        fill.style.background = l.bg;
+        label.textContent = l.txt;
+        label.style.color = l.bg;
+      }
+
+      document
+        .getElementById("passwordConfirm")
+        .addEventListener("keydown", (e) => {
+          if (e.key === "Enter") doRegister();
+        });
+
+      async function doRegister() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("passwordConfirm").value;
+        const msg = document.getElementById("msg");
+        const btn = document.getElementById("regBtn");
+        const spinner = document.getElementById("spinner");
+        const btnText = document.getElementById("btnText");
+
+        msg.className = "msg";
+
+        // Validate
+        if (!username || !password || !confirm) {
+          msg.textContent = "Vui lòng điền đầy đủ các trường bắt buộc (*)";
+          msg.className = "msg error";
+          return;
+        }
+        if (username.length < 4) {
+          msg.textContent = "Tên đăng nhập phải có ít nhất 4 ký tự";
+          msg.className = "msg error";
+          return;
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          msg.textContent = "Tên đăng nhập chỉ được dùng chữ cái, số và dấu _";
+          msg.className = "msg error";
+          return;
+        }
+        if (password.length < 6) {
+          msg.textContent = "Mật khẩu phải có ít nhất 6 ký tự";
+          msg.className = "msg error";
+          return;
+        }
+        if (password !== confirm) {
+          msg.textContent = "Mật khẩu xác nhận không khớp";
+          msg.className = "msg error";
+          return;
+        }
+
+        btn.disabled = true;
+        spinner.style.display = "block";
+        btnText.textContent = "Đang tạo tài khoản...";
+
+        try {
+          const res = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            msg.textContent = data.error || "Đăng ký thất bại";
+            msg.className = "msg error";
+          } else {
+            msg.textContent =
+              "✅ Tạo tài khoản thành công! Đang chuyển hướng...";
+            msg.className = "msg success";
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1500);
+          }
+        } catch (e) {
+          msg.textContent = "Lỗi kết nối server";
+          msg.className = "msg error";
+        } finally {
+          btn.disabled = false;
+          spinner.style.display = "none";
+          btnText.textContent = "Tạo tài khoản";
+        }
+      }
+    </script>
+  </body>
+</html>

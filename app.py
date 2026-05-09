@@ -64,6 +64,20 @@ def init_db():
             user_id INTEGER, platform TEXT, monthly_limit REAL, month TEXT,
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
+        CREATE TABLE IF NOT EXISTS budget_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            platform TEXT NOT NULL,
+            budget_limit REAL NOT NULL,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            alert_sent INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(user_id, platform),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+                    
     """)
     def hp(pw): return hashlib.sha256(pw.encode()).hexdigest()
     for u in [("admin","admin@ads.com",hp("admin123"),"admin"),
@@ -223,8 +237,7 @@ def fb_fetch(uid, row, days=7):
 # ══════════════════════════════════════════════════════════════════════════════
 GOOGLE_AUTH_URL  = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-GOOGLE_SCOPES    = "https://www.googleapis.com/auth/adwords"
-
+GOOGLE_SCOPES = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid"
 def google_refresh(uid, row):
     if not row.get("refresh_token"): return None
     try:
@@ -321,6 +334,36 @@ def index():
     if "user_id" in session:
         return redirect(url_for("admin_page") if session.get("role")=="admin" else url_for("dashboard_page"))
     return redirect(url_for("login_page"))
+
+@app.route("/register")
+def register_page():
+    if "user_id" in session: return redirect(url_for("index"))
+    return render_template("register.html")
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    data = request.json
+    username = data.get("username","").strip()
+    password = data.get("password","")
+    if not username or not password:
+        return jsonify({"error": "Thiếu thông tin bắt buộc"}), 400
+    if len(username) < 4:
+        return jsonify({"error": "Tên đăng nhập phải có ít nhất 4 ký tự"}), 400
+    if len(password) < 6:
+        return jsonify({"error": "Mật khẩu phải có ít nhất 6 ký tự"}), 400
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO users (username, email, password, role) VALUES (?,?,?,?)",
+            (username, f"{username}@adsanalytics.local", hash_pw(password), "user")
+        )
+        conn.commit()
+        log_activity(None, "REGISTER", f"User mới: {username}")
+        return jsonify({"ok": True})
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Tên đăng nhập đã tồn tại"}), 400
+    finally:
+        conn.close()
 
 @app.route("/login")
 def login_page():
@@ -470,9 +513,18 @@ def auth_google_callback():
         d=http_post(GOOGLE_TOKEN_URL,{"code":code,"client_id":GOOGLE_CLIENT_ID,
             "client_secret":GOOGLE_CLIENT_SECRET,
             "redirect_uri":f"{APP_BASE_URL}/auth/google/callback","grant_type":"authorization_code"})
-        exp=(datetime.now()+timedelta(seconds=d.get("expires_in",3600))).isoformat()
-        save_connection(session["user_id"],"google",d["access_token"],d.get("refresh_token",""),
-                        exp,"TODO_CUSTOMER_ID","Google Ads Account")
+       # Google access token sống 1h nhưng có refresh token → set 7 ngày cho UI đẹp
+        exp = (datetime.now() + timedelta(days=7)).isoformat()
+        try:
+            me = http_get(f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={d['access_token']}")
+            account_name = me.get("name", "Google Account")
+            account_email = me.get("email", "")
+        except:
+            account_name = "Google Account"
+            account_email = ""
+        save_connection(session["user_id"], "google", d["access_token"],
+                d.get("refresh_token", ""), exp,
+                account_email, account_name)
         log_activity(session["user_id"],"CONNECT_PLATFORM","Google Ads OK")
         return redirect(url_for("dashboard_page")+"?connected=google")
     except Exception as e:
@@ -582,7 +634,7 @@ def api_admin_stats():
 def api_admin_preview_dashboard():
     uid=request.args.get("user_id",type=int); days=int(request.args.get("days",7))
     if not uid: return jsonify({"error":"Missing user_id"}),400
-    data=get_all_data(uid,days,force_mock=True)
+    data=get_all_data_v2(uid,days,force_mock=False)
     conn=get_db()
     budgets=conn.execute("SELECT platform,monthly_limit FROM budgets WHERE user_id=?",(uid,)).fetchall()
     conn.close(); data["budgets"]={b["platform"]:b["monthly_limit"] for b in budgets}
@@ -743,6 +795,257 @@ def api_connections_status():
         else:
             result[p] = {"connected": False, "can_connect": can_connect[p]}
     return jsonify(result)
+
+    # ── THÊM VÀO app.py (trước dòng if __name__=="__main__":) ──────────────────
+
+@app.route("/api/change-password", methods=["POST"])
+@login_required
+def api_change_password():
+    """
+    Đổi mật khẩu tài khoản ứng dụng (không liên quan tới Facebook/Google/TikTok).
+    Body JSON: { "current_password": "...", "new_password": "..." }
+    """
+    data = request.json
+    if not data:
+        return jsonify({"error": "Thiếu dữ liệu"}), 400
+
+    current_pw = data.get("current_password", "")
+    new_pw     = data.get("new_password", "")
+
+    # Validate
+    if not current_pw or not new_pw:
+        return jsonify({"error": "Vui lòng điền đầy đủ thông tin"}), 400
+    if len(new_pw) < 6:
+        return jsonify({"error": "Mật khẩu mới phải có ít nhất 6 ký tự"}), 400
+
+    uid = session["user_id"]
+    conn = get_db()
+
+    # Kiểm tra mật khẩu hiện tại
+    user = conn.execute(
+        "SELECT * FROM users WHERE id=? AND password=?",
+        (uid, hash_pw(current_pw))
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"error": "Mật khẩu hiện tại không đúng"}), 401
+
+    # Cập nhật mật khẩu mới
+    conn.execute(
+        "UPDATE users SET password=? WHERE id=?",
+        (hash_pw(new_pw), uid)
+    )
+    conn.commit()
+    conn.close()
+
+    log_activity(uid, "CHANGE_PASSWORD", "Đổi mật khẩu thành công")
+    return jsonify({"ok": True, "message": "Đổi mật khẩu thành công"})
+
+# ── API REFRESH TOKEN ─────────────────────────────────────────────────────────
+@app.route("/api/refresh/<platform>", methods=["POST"])
+@login_required
+def api_refresh_token(platform):
+    if platform not in ("facebook", "google", "tiktok"):
+        return jsonify({"error": "Invalid platform"}), 400
+
+    uid = session["user_id"]
+    connections = get_connections(uid)
+    row = connections.get(platform)
+
+    if not row:
+        return jsonify({"error": "Chưa kết nối"}), 404
+
+    if platform == "facebook":
+        # Facebook: dùng long-lived token hiện tại để lấy token mới
+        try:
+            new_tok, new_exp = fb_to_long_lived(row["access_token"])
+            save_connection(uid, "facebook", new_tok, None, new_exp,
+                            row["account_id"], row["account_name"], row.get("scopes", "[]"))
+            log_activity(uid, "FB_TOKEN_REFRESH", "Manual refresh OK")
+
+            # Tính days_left
+            exp_dt = datetime.fromisoformat(new_exp)
+            days_left = max(0, (exp_dt - datetime.now()).days)
+            return jsonify({"ok": True, "days_left": days_left,
+                            "message": f"Token Facebook làm mới thành công! Còn {days_left} ngày."})
+        except Exception as e:
+            print(f"[FB Manual Refresh] {e}")
+            return jsonify({"error": "Token hết hạn hoàn toàn, cần kết nối lại"}), 400
+
+    elif platform == "google":
+        # Google: dùng refresh_token để lấy access_token mới
+        if not row.get("refresh_token"):
+            return jsonify({"error": "Không có refresh token, cần kết nối lại", "needs_reauth": True}), 400
+        try:
+            new_tok = google_refresh(uid, row)
+            if not new_tok:
+                return jsonify({"error": "Không thể làm mới, cần kết nối lại", "needs_reauth": True}), 400
+            log_activity(uid, "GOOGLE_TOKEN_REFRESH", "Manual refresh OK")
+            return jsonify({"ok": True, "message": "Token Google làm mới thành công!"})
+        except Exception as e:
+            return jsonify({"error": str(e), "needs_reauth": True}), 400
+
+    elif platform == "tiktok":
+        # TikTok: dùng refresh_token
+        if not row.get("refresh_token"):
+            return jsonify({"error": "Không có refresh token, cần kết nối lại", "needs_reauth": True}), 400
+        try:
+            new_tok = tiktok_refresh(uid, row)
+            if not new_tok:
+                return jsonify({"error": "Không thể làm mới, cần kết nối lại", "needs_reauth": True}), 400
+            log_activity(uid, "TIKTOK_TOKEN_REFRESH", "Manual refresh OK")
+            return jsonify({"ok": True, "message": "Token TikTok làm mới thành công!"})
+        except Exception as e:
+            return jsonify({"error": str(e), "needs_reauth": True}), 400
+
+# ── BUDGET SETTINGS ───────────────────────────────────────────────────────────
+@app.route("/api/budget", methods=["GET"])
+@login_required
+def api_get_budget():
+    uid = session["user_id"]
+    platform = request.args.get("platform", "all")
+    conn = get_db()
+    if platform == "all":
+        rows = conn.execute(
+            "SELECT * FROM budget_settings WHERE user_id=?", (uid,)
+        ).fetchall()
+        conn.close()
+        return jsonify({r["platform"]: dict(r) for r in rows})
+    else:
+        row = conn.execute(
+            "SELECT * FROM budget_settings WHERE user_id=? AND platform=?",
+            (uid, platform)
+        ).fetchone()
+        conn.close()
+        return jsonify(dict(row) if row else {})
+
+@app.route("/api/budget", methods=["POST"])
+@login_required
+def api_set_budget():
+    uid = session["user_id"]
+    data = request.json
+    platform     = data.get("platform")
+    budget_limit = data.get("budget_limit")
+    start_date   = data.get("start_date")
+    end_date     = data.get("end_date")
+
+    if not all([platform, budget_limit, start_date, end_date]):
+        return jsonify({"error": "Thiếu thông tin"}), 400
+    if platform not in ("facebook", "google", "tiktok"):
+        return jsonify({"error": "Platform không hợp lệ"}), 400
+    try:
+        budget_limit = float(budget_limit)
+        if budget_limit <= 0:
+            return jsonify({"error": "Ngân sách phải lớn hơn 0"}), 400
+    except:
+        return jsonify({"error": "Ngân sách không hợp lệ"}), 400
+
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO budget_settings (user_id, platform, budget_limit, start_date, end_date, alert_sent, updated_at)
+        VALUES (?, ?, ?, ?, ?, 0, datetime('now'))
+        ON CONFLICT(user_id, platform) DO UPDATE SET
+        budget_limit=excluded.budget_limit,
+        start_date=excluded.start_date,
+        end_date=excluded.end_date,
+        alert_sent=0,
+        updated_at=datetime('now')
+    """, (uid, platform, budget_limit, start_date, end_date))
+    conn.commit()
+    conn.close()
+    log_activity(uid, "SET_BUDGET", f"{platform}: {budget_limit:,.0f}đ ({start_date} → {end_date})")
+    return jsonify({"ok": True})
+
+@app.route("/api/budget/<platform>", methods=["DELETE"])
+@login_required
+def api_delete_budget(platform):
+    uid = session["user_id"]
+    conn = get_db()
+    conn.execute("DELETE FROM budget_settings WHERE user_id=? AND platform=?", (uid, platform))
+    conn.commit()
+    conn.close()
+    return jsonify({"ok": True})
+
+@app.route("/api/budget/check", methods=["GET"])
+@login_required  
+def api_check_budget():
+    uid = session["user_id"]
+    conn = get_db()
+    budgets = conn.execute(
+        "SELECT * FROM budget_settings WHERE user_id=?", (uid,)
+    ).fetchall()
+    conn.close()
+
+    alerts = []
+    today = datetime.now()
+
+    for b in budgets:
+        b = dict(b)
+        try:
+            start = datetime.strptime(b["start_date"], "%Y-%m-%d")
+            end   = datetime.strptime(b["end_date"],   "%Y-%m-%d")
+        except:
+            continue
+
+        # Chưa đến ngày bắt đầu → bỏ qua
+        if today < start:
+            continue
+
+        # Đã qua ngày kết thúc → bỏ qua
+        if today > end:
+            continue
+
+        # Tính số ngày từ start đến HÔM NAY
+        days_elapsed = max(1, (today - start).days + 1)
+
+        # Lấy data thực tế từ start đến hôm nay
+        pd = get_platform_data(uid, b["platform"], days_elapsed)
+        spend = pd.get("total_spend", 0)
+        pct   = round(spend / b["budget_limit"] * 100, 1) if b["budget_limit"] else 0
+
+        # Luôn trả về để hiện progress, chỉ alert khi >= 90%
+        item = {
+            "platform":   b["platform"],
+            "spend":      spend,
+            "limit":      b["budget_limit"],
+            "pct":        pct,
+            "start_date": b["start_date"],
+            "end_date":   b["end_date"],
+            "days_elapsed": days_elapsed,
+            "total_days": max(1, (end - start).days + 1),
+            "is_alert":   pct >= 90,
+        }
+        alerts.append(item)
+
+        # Đánh dấu alert 1 lần khi vượt 90%
+        if pct >= 90 and not b["alert_sent"]:
+            conn = get_db()
+            conn.execute(
+                "UPDATE budget_settings SET alert_sent=1 WHERE user_id=? AND platform=?",
+                (uid, b["platform"])
+            )
+            conn.commit()
+            conn.close()
+
+    return jsonify({"alerts": alerts})
+
+@app.route("/api/history")
+@login_required
+def api_history():
+    uid = session["user_id"]
+    conn = get_db()
+    # Lọc bỏ VIEW_DASHBOARD để không spam log
+    logs = conn.execute("""
+        SELECT id, action, detail, ip, created_at
+        FROM activity_logs
+        WHERE user_id=? AND action != 'VIEW_DASHBOARD'
+        ORDER BY created_at DESC
+        LIMIT 100
+    """, (uid,)).fetchall()
+    conn.close()
+    return jsonify([dict(l) for l in logs])
+
 
 if __name__=="__main__":
     init_db(); app.run(debug=True,port=5000)
