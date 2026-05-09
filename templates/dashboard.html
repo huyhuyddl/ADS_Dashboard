@@ -508,7 +508,7 @@
       /* ── CHARTS ── */
       .grid-2 {
         display: grid;
-        grid-template-columns: 1fr 300px;
+        grid-template-columns: 2fr minmax(380px, 450px);
         gap: 14px;
         margin-bottom: 14px;
       }
@@ -637,6 +637,7 @@
         border-radius: 4px;
         font-size: 10.5px;
         font-weight: 500;
+        white-space: nowrap;
       }
       .b-ok {
         background: rgba(0, 229, 160, 0.12);
@@ -2496,7 +2497,7 @@
           const srcBadge = s.is_mock
             ? '<span class="badge b-warn" style="font-size:9.5px">Demo</span>'
             : '<span class="badge b-ok" style="font-size:9.5px">Live</span>';
-          html += `<tr><td><div class="ch-name"><div class="ch-icon" style="background:${r.bg}">${r.icon}</div><div>${r.name} ${srcBadge}</div></div>${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}</td><td><span class="mono">${fmtM(s.spend)}</span>${budget ? `<br><span style="font-size:10.5px;color:${color}">${pct}% NS</span>` : ""}</td><td class="mono" style="color:${rcolor}">${s.roas}x</td><td style="color:var(--text2)">${s.ctr}%</td><td>${badge}</td></tr>`;
+          html += `<tr><td><div class="ch-name"><div class="ch-icon" style="background:${r.bg}">${r.icon}</div><div>${r.name} ${srcBadge}</div></div>${budget ? `<div class="prog"><div class="prog-fill" style="width:${Math.min(pct, 100)}%;background:${color}"></div></div>` : ""}</td><td><span class="mono">${fmtM(s.spend)}</span>${budget ? `<br><span style="font-size:10.5px;color:${color}">${pct}% NS</span>` : ""}</td><td class="mono" style="color:${rcolor}">${s.roas}x</td><td style="color:var(--text2)">${s.ctr}%</td><td style="white-space:nowrap">${badge}</td></tr>`;
         }
         html += "</tbody>";
         document.getElementById(tableId).innerHTML = html;
